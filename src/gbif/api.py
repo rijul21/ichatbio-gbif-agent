@@ -17,7 +17,7 @@ from src.models.entrypoints import (
     GBIFDatasetSearchParams,
 )
 from src.models.registry import GBIFGrSciCollInstitutionSearchParams
-from src.models.literature import GBIFLiteratureSearchParams
+from src.models.literature import GBIFLiteratureByIdParams
 
 
 class GbifApi:
@@ -118,21 +118,9 @@ class GbifApi:
         api_params = self._convert_to_api_params(params)
         query_string = urlencode(api_params, doseq=True)
         return f"{self.base_url}/dataset/search?{query_string}"
-    
-    def build_literature_search_url(self, params: GBIFLiteratureSearchParams) -> str:
-        api_params = self._convert_to_api_params(params)
-        query_string = urlencode(api_params, doseq=True)
-        return f"{self.base_url}/literature/search?{query_string}"
 
-    def build_literature_portal_url(self, params: GBIFLiteratureSearchParams) -> str:
-        api_params = self._convert_to_api_params(params)
-        #removing pagination params, not needed in portal URL
-        api_params.pop("limit", None)
-        api_params.pop("offset", None)
-        #adding contentType=literature as first param
-        portal_params = {"contentType": "literature", **api_params}
-        query_string = urlencode(portal_params, doseq=True)
-        return f"https://www.gbif.org/resource/search?{query_string}"
+    def build_literature_by_id_url(self, params: GBIFLiteratureByIdParams) -> str:
+        return f"{self.base_url}/literature/{params.uuid}"
 
     def build_grscicoll_institution_search_url(
         self, params: GBIFGrSciCollInstitutionSearchParams
@@ -143,39 +131,21 @@ class GbifApi:
 
     def build_portal_url(self, api_url: str) -> str:
         """Convert an API URL to its corresponding portal URL by removing facet parameters."""
-        # Split URL into base and query string
         base_part, *query_part = api_url.split("?")
-
-        # Replace API base URL with portal URL base
         portal_base = base_part.replace(self.base_url, self.portal_url)
-
-        # If no query parameters, return just the base
         if not query_part:
             return portal_base
-
-        # Parse query string into dictionary
         from urllib.parse import parse_qs
-
         params = parse_qs(query_part[0])
-
-        # Remove facet-related and limit=0 parameters
         params_to_remove = [
-            "limit",
-            "facet",
-            "facetLimit",
-            "facetOffset",
-            "facetMinCount",
-            "facetMultiselect",
+            "limit", "facet", "facetLimit", "facetOffset", "facetMinCount", "facetMultiselect",
         ]
         for param in params_to_remove:
             params.pop(param, None)
-
-        # Reconstruct query string from remaining parameters
         if params:
             query_string = "&".join(
                 f"{key}={value[0]}" if len(value) == 1 else f"{key}={','.join(value)}"
                 for key, value in params.items()
             )
             return f"{portal_base}?{query_string}"
-
         return portal_base

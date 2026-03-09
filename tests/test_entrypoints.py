@@ -148,29 +148,25 @@ async def test_find_datasets(agent, context, messages):
 
 
 @pytest.mark.asyncio
-async def test_find_literature(agent, context, messages):
+async def test_find_literature_by_id(agent, context, messages):
     mock_response = {
         "status_code": 200,
-        "count": 42,
-        "limit": 20,
-        "offset": 0,
-        "results": [
-            {
-                "id": "abc123",
-                "title": "Coral reef biodiversity under climate change",
-                "literatureType": "JOURNAL",
-                "year": 2022,
-                "peerReview": True,
-            }
-        ],
+        "id": "83a00190-7038-3970-a7e8-5e5563c40e37",
+        "title": "A new westward migration route in an Asian passerine bird",
+        "literatureType": "JOURNAL",
+        "year": 2021,
+        "peerReview": True,
+        "openAccess": False,
+        "source": "Current Biology",
+        "publisher": "Elsevier",
     }
 
     with patch("src.gbif.fetch.execute_request") as mock_execute:
         mock_execute.return_value = mock_response
         await agent.run(
             context,
-            "Find peer-reviewed papers about coral reefs",
-            "find_literature",
+            "Find literature 83a00190-7038-3970-a7e8-5e5563c40e37",
+            "find_literature_by_id",
             None,
         )
 

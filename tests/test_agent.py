@@ -68,5 +68,5 @@ async def test_routes_find_datasets_entrypoint(mock_run, agent, context):
 @patch("src.entrypoints.literature.search.run")
 async def test_routes_find_literature_entrypoint(mock_run, agent, context):
     mock_run.return_value = AsyncMock()
-    await agent.run(context, "test", "find_literature", None)
+    await agent.run(context, "test", "find_literature_by_id", None)
     mock_run.assert_called_once_with(context, "test")

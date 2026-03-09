@@ -204,10 +204,10 @@ async def parse(
             max_retries=3,
         )
     except InstructorRetryException as e:
-        # Access failed attempts for debugging
         print(f"Failed after {e.n_attempts} attempts")
         print(f"Exception details: {e}")
+        raise
     except Exception as e:
         print(f"Exception details: {e}")
-
+        raise
     return response

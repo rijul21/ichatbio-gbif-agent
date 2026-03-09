@@ -1,6 +1,6 @@
 from pydantic import BaseModel, model_validator, ValidationInfo, field_validator
 from typing import ClassVar
-from src.models.literature import GBIFLiteratureSearchParams
+from src.models.literature import GBIFLiteratureByIdParams
 
 from src.models.entrypoints import (
     GBIFOccurrenceSearchParams,
@@ -179,12 +179,7 @@ class GrSciCollInstitutionSearchParamsValidator(
     }
 
 
-class LiteratureSearchParamsValidator(RequestValidationMixin, GBIFLiteratureSearchParams):
+class LiteratureByIdParamsValidator(RequestValidationMixin, GBIFLiteratureByIdParams):
     VALIDATION_FIELDS: ClassVar[dict[str, str]] = {
-        "gbifDatasetKey": "key or ID",
-        "publishingOrganizationKey": "key or ID",
-        "gbifDownloadKey": "key or ID",
-        "gbifOccurrenceKey": "key or ID",
-        "gbifTaxonKey": "key or ID",
-        "doi": "DOI",
+        "uuid": "UUID or ID",
     }
