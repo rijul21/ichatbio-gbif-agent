@@ -52,7 +52,7 @@ async def run(context: ResponseContext, request: str):
         await process.log(f"Request received: {request} \n\nParsing request...")
 
         expansion_response = await _preprocess_user_request(request)
-        if not expansion_response.locations:
+        if expansion_response.locations:
             await process.log(
                 "Warning: Request include locations. This entrypoint cannot search for species records with specific locations."
             )
@@ -121,7 +121,7 @@ async def run(context: ResponseContext, request: str):
             }
             pagination_message = "API pagination information of the response"
             if page_info.get("count") > (
-                page_info.get("facetLimit") + page_info.get("facetOffset")
+               (page_info.get("facetLimit") or 0) + (page_info.get("facetOffset") or 0)
             ):
                 pagination_message = "Warning: The response is truncated due to pagination and only contain subset of the data available on GBIF."
             await process.log(pagination_message, data=page_info)

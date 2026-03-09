@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, patch
 
 def test_get_agent_card(agent):
     card = agent.get_agent_card()
-
     assert card.name == "GBIF Search"
     assert len(card.entrypoints) == 8
 
@@ -62,4 +61,12 @@ async def test_routes_find_species_taxonomic_information_entrypoint(mock_run, ag
 async def test_routes_find_datasets_entrypoint(mock_run, agent, context):
     mock_run.return_value = AsyncMock()
     await agent.run(context, "test", "find_datasets", None)
+    mock_run.assert_called_once_with(context, "test")
+
+
+@pytest.mark.asyncio
+@patch("src.entrypoints.literature.search.run")
+async def test_routes_find_literature_entrypoint(mock_run, agent, context):
+    mock_run.return_value = AsyncMock()
+    await agent.run(context, "test", "find_literature", None)
     mock_run.assert_called_once_with(context, "test")

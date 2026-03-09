@@ -18,7 +18,6 @@ async def test_find_occurrence_records(agent, context, messages):
 
     artifacts = [m for m in messages if isinstance(m, ArtifactResponse)]
     assert artifacts, "Expected at least one ArtifactResponse"
-    # The agent first does species matching, so we need to check for that
     species_artifacts = [a for a in artifacts if a.metadata.get("data_source") == "GBIF Species Match"]
     assert species_artifacts, "Expected species match artifact"
 
@@ -39,7 +38,6 @@ async def test_count_occurrence_records(agent, context, messages):
         )
     artifacts = [m for m in messages if isinstance(m, ArtifactResponse)]
     assert artifacts, "Expected at least one ArtifactResponse"
-    # The agent first does species matching, so we need to check for that
     species_artifacts = [a for a in artifacts if a.metadata.get("data_source") == "GBIF Species Match"]
     assert species_artifacts, "Expected species match artifact"
 
@@ -79,8 +77,6 @@ async def test_find_species_records(agent, context, messages):
             "find_species_records",
             None,
         )
-    print("MESSAGES:", messages)
-    print("TYPES:", [type(m) for m in messages])
     artifacts = [m for m in messages if isinstance(m, ArtifactResponse)]
     assert artifacts, "Expected at least one ArtifactResponse"
     assert artifacts[0].metadata["data_source"] == "GBIF Species"
@@ -90,9 +86,11 @@ async def test_find_species_records(agent, context, messages):
 async def test_count_species_records(agent, context, messages):
     mock_response = {
         "status_code": 200,
-        "count": 0,
+        "count": 250,
         "results": [],
-        "facets": [{"field": "kingdom", "counts": [{"name": "Animalia", "count": 250}]}]
+        "facets": [{"field": "kingdom", "counts": [{"name": "Animalia", "count": 250}]}],
+        "facetLimit": 10,
+        "facetOffset": 0,
     }
 
     with patch('src.gbif.fetch.execute_request') as mock_execute:
@@ -118,7 +116,7 @@ async def test_find_species_taxonomic_information(agent, context, messages):
         await agent.run(
             context,
             "Get taxonomy for Panthera leo",
-            "find_species_taxonomic_information",
+            "find_taxonomic_information",
             None,
         )
 
@@ -147,3 +145,35 @@ async def test_find_datasets(agent, context, messages):
     artifacts = [m for m in messages if isinstance(m, ArtifactResponse)]
     assert artifacts, "Expected at least one ArtifactResponse"
     assert artifacts[0].metadata["data_source"] == "GBIF Registry"
+
+
+@pytest.mark.asyncio
+async def test_find_literature(agent, context, messages):
+    mock_response = {
+        "status_code": 200,
+        "count": 42,
+        "limit": 20,
+        "offset": 0,
+        "results": [
+            {
+                "id": "abc123",
+                "title": "Coral reef biodiversity under climate change",
+                "literatureType": "JOURNAL",
+                "year": 2022,
+                "peerReview": True,
+            }
+        ],
+    }
+
+    with patch("src.gbif.fetch.execute_request") as mock_execute:
+        mock_execute.return_value = mock_response
+        await agent.run(
+            context,
+            "Find peer-reviewed papers about coral reefs",
+            "find_literature",
+            None,
+        )
+
+    artifacts = [m for m in messages if isinstance(m, ArtifactResponse)]
+    assert artifacts, "Expected at least one ArtifactResponse"
+    assert artifacts[0].metadata["data_source"] == "GBIF Literature"
