@@ -17,6 +17,7 @@ from src.models.entrypoints import (
     GBIFDatasetSearchParams,
 )
 from src.models.registry import GBIFGrSciCollInstitutionSearchParams
+from src.models.literature import GBIFLiteratureSearchParams
 
 
 class GbifApi:
@@ -117,6 +118,21 @@ class GbifApi:
         api_params = self._convert_to_api_params(params)
         query_string = urlencode(api_params, doseq=True)
         return f"{self.base_url}/dataset/search?{query_string}"
+    
+    def build_literature_search_url(self, params: GBIFLiteratureSearchParams) -> str:
+        api_params = self._convert_to_api_params(params)
+        query_string = urlencode(api_params, doseq=True)
+        return f"{self.base_url}/literature/search?{query_string}"
+
+    def build_literature_portal_url(self, params: GBIFLiteratureSearchParams) -> str:
+        api_params = self._convert_to_api_params(params)
+        #removing pagination params, not needed in portal URL
+        api_params.pop("limit", None)
+        api_params.pop("offset", None)
+        #adding contentType=literature as first param
+        portal_params = {"contentType": "literature", **api_params}
+        query_string = urlencode(portal_params, doseq=True)
+        return f"https://www.gbif.org/resource/search?{query_string}"
 
     def build_grscicoll_institution_search_url(
         self, params: GBIFGrSciCollInstitutionSearchParams

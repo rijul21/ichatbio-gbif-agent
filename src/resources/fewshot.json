@@ -368,5 +368,80 @@
             },
             "reasoning": "The user wants to count the number of species with the genus Rattus and group them by rank and threat status. I have added the scientific name 'Rattus' to the `q` field. To group the counts I used the `facet` field. Since it is a count request with facets, I have added the `facetLimit`, `facetOffset` along with `limit`=0 field."
         }
+    ],
+
+    "find_literature": [
+        {
+            "request": "Find peer-reviewed papers that used GBIF data on coral reefs",
+            "response": {
+                "params": {
+                    "q": "coral reefs",
+                    "peerReview": true,
+                    "relevance": ["GBIF_USED"]
+                },
+                "unresolved_params": null,
+                "clarification_needed": false,
+                "clarification_reason": null
+            },
+            "reasoning": "User wants peer-reviewed papers, maps to peerReview=true. 'Used GBIF data' maps to relevance=GBIF_USED. 'Coral reefs' is a free text topic, maps to q."
+        },
+        {
+            "request": "Show me journal articles about invasive species in Brazil published between 2018 and 2022",
+            "response": {
+                "params": {
+                    "q": "invasive species",
+                    "literatureType": ["JOURNAL"],
+                    "countriesOfCoverage": ["BR"],
+                    "year": "2018,2022"
+                },
+                "unresolved_params": null,
+                "clarification_needed": false,
+                "clarification_reason": null
+            },
+            "reasoning": "Journal articles maps to literatureType=JOURNAL. Brazil maps to ISO code BR for countriesOfCoverage since the study focuses on Brazil. Year range 2018-2022 maps to year=2018,2022."
+        },
+        {
+            "request": "Find open access theses citing GBIF about climate change and birds",
+            "response": {
+                "params": {
+                    "q": "climate change birds",
+                    "literatureType": ["THESIS"],
+                    "openAccess": true,
+                    "relevance": ["GBIF_CITED"],
+                    "topics": ["CLIMATE_CHANGE"]
+                },
+                "unresolved_params": null,
+                "clarification_needed": false,
+                "clarification_reason": null
+            },
+            "reasoning": "Theses maps to literatureType=THESIS. Open access maps to openAccess=true. Citing GBIF maps to relevance=GBIF_CITED. Climate change maps to topics=CLIMATE_CHANGE. Birds and climate change also included in q for free text coverage."
+        },
+        {
+            "request": "Find papers by researchers in Germany about biodiversity in Africa",
+            "response": {
+                "params": {
+                    "countriesOfResearcher": ["DE"],
+                    "q": "biodiversity Africa"
+                },
+                "unresolved_params": null,
+                "clarification_needed": false,
+                "clarification_reason": null
+            },
+            "reasoning": "Researchers in Germany maps to countriesOfResearcher=DE (ISO code). Africa is a continent not a single country so cannot map to countriesOfCoverage, instead added to q for free text search."
+        },
+        {
+            "request": "Find literature about this dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",
+            "response": {
+                "params": {
+                    "gbifDatasetKey": ["50c9509d-22c7-4a22-a47d-8c48425ef4a7"]
+                },
+                "unresolved_params": null,
+                "clarification_needed": false,
+                "clarification_reason": null
+            },
+            "reasoning": "User provided an explicit dataset UUID, maps directly to gbifDatasetKey."
+        }
     ]
 }
+
+

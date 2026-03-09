@@ -6,7 +6,7 @@ def test_get_agent_card(agent):
     card = agent.get_agent_card()
 
     assert card.name == "GBIF Search"
-    assert len(card.entrypoints) == 7
+    assert len(card.entrypoints) == 8
 
 
 @pytest.mark.asyncio
