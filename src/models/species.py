@@ -29,7 +29,7 @@ class SearchFilters(ProductionBaseModel):
             "Panthera tigris",
             "endangered cats",
         ],
-    ),
+    )
     qField: Optional[QueryFieldEnum] = Field(
         None,
         description="Use it along with q parameter. Limits the q parameter to search in a specific field. Use it to narrow down the results. Use SCIENTIFIC_NAME when you know or have a good estimate of the scientific name of the species you are searching for. Use VERNACULAR_NAME when you want to find a species using its common name, which can vary by region or language. Use DESCRIPTION when you are looking for a species based on a keyword found in its general description rather than its name.",
