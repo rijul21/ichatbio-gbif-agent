@@ -6,6 +6,8 @@ from typing import Dict, Any
 from urllib.parse import urlencode
 from uuid import UUID
 
+from src.models.literature import GBIFLiteratureByIdParams, GBIFLiteratureSearchParams
+
 from src.models.entrypoints import (
     GBIFOccurrenceSearchParams,
     GBIFOccurrenceFacetsParams,
@@ -113,6 +115,19 @@ class GbifApi:
         gbif_id = params.gbifId
         base_url = f"{self.base_url}/occurrence/{gbif_id}"
         return base_url
+    
+    def build_literature_search_url(self, params: GBIFLiteratureSearchParams) -> str:
+        api_params = self._convert_to_api_params(params)
+        query_string = urlencode(api_params, doseq=True)
+        return f"{self.base_url}/literature/search?{query_string}"
+
+    def build_literature_portal_url(self, params: GBIFLiteratureSearchParams) -> str:
+        api_params = self._convert_to_api_params(params)
+        api_params.pop("limit", None)
+        api_params.pop("offset", None)
+        portal_params = {"contentType": "literature", **api_params}
+        query_string = urlencode(portal_params, doseq=True)
+        return f"https://www.gbif.org/resource/search?{query_string}"
 
     def build_dataset_search_url(self, params: GBIFDatasetSearchParams) -> str:
         api_params = self._convert_to_api_params(params)
