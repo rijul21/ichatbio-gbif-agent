@@ -141,6 +141,11 @@ class GBIFLiteratureSearchParams(ProductionBaseModel):
         description="GBIF backbone taxon key(s) that are the focus of the paper.",
         examples=[[2435098]],
     )
+    gbifDatasetKey: Optional[List[UUID]] = Field(
+    None,
+    description="UUID of a GBIF dataset referenced in the publication.",
+    examples=[["50c9509d-22c7-4a22-a47d-8c48425ef4a7"]],
+    )  
     language: Optional[str] = Field(
         None,
         description="Language of publication as ISO 639-2 code.",

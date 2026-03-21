@@ -190,4 +190,5 @@ class LiteratureSearchParamsValidator(RequestValidationMixin, GBIFLiteratureSear
     VALIDATION_FIELDS: ClassVar[dict[str, str]] = {
         "doi": "DOI",
         "gbifTaxonKey": "key or ID",
+        "gbifDatasetKey": "key or ID",
     }

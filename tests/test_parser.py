@@ -64,5 +64,5 @@ async def test_parse_success_and_message_structure(
     messages = mock_client.chat.completions.create.call_args[1]["messages"]
     assert messages == [
         {"role": "system", "content": messages[0]["content"]},
-        {"role": "user", "content": "Today's date is March 09, 2026. Generate GBIF Request Parameters for the following user request: find birds"},
+        {"role": "user", "content": "Today's date is March 21, 2026. Generate GBIF Request Parameters for the following user request: find birds"},
     ]

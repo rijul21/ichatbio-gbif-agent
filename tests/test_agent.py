@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, patch
 def test_get_agent_card(agent):
     card = agent.get_agent_card()
     assert card.name == "GBIF Search"
-    assert len(card.entrypoints) == 8
+    assert len(card.entrypoints) == 9
 
 
 @pytest.mark.asyncio
