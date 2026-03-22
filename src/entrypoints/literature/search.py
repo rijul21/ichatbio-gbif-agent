@@ -98,7 +98,16 @@ async def run(context: ResponseContext, request: str):
             }
             await process.log("Record information", data=subset_response)
 
+
             portal_url = f"https://www.gbif.org/literature/{params.uuid}"
+
+            await process.log(
+            "Paper access",
+            data={
+                "doi_url": f"https://doi.org/{raw_response.get('identifiers', {}).get('doi')}" if raw_response.get('identifiers', {}).get('doi') else None,
+                "open_access": raw_response.get("openAccess", False),
+            },
+        )
 
             await process.create_artifact(
                 mimetype="application/json",
