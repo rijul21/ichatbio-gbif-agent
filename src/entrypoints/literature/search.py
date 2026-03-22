@@ -110,6 +110,18 @@ async def run(context: ResponseContext, request: str):
                 },
             )
 
+            doi = raw_response.get("identifiers", {}).get("doi")
+            
+            if doi:
+                await process.create_artifact(
+                    mimetype="text/html",
+                    description=f"Full paper: {raw_response.get('title')}",
+                    uris=[f"https://doi.org/{doi}"],
+                    metadata={
+                        "data_source": "External Publisher",
+                    },
+                )
+
             summary = _generate_by_id_response_summary(params.uuid, portal_url)
             await context.reply(summary)
 
