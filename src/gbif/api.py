@@ -125,6 +125,7 @@ class GbifApi:
         api_params = self._convert_to_api_params(params)
         api_params.pop("limit", None)
         api_params.pop("offset", None)
+        api_params.pop("literatureType", None)
         portal_params = {"contentType": "literature", **api_params}
         query_string = urlencode(portal_params, doseq=True)
         return f"https://www.gbif.org/resource/search?{query_string}"
