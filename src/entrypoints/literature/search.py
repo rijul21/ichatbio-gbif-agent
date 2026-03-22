@@ -111,7 +111,9 @@ async def run(context: ResponseContext, request: str):
             )
 
             doi = raw_response.get("identifiers", {}).get("doi")
-            
+            websites = raw_response.get("websites", [])
+            is_open_access = raw_response.get("openAccess", False)
+
             if doi:
                 await process.create_artifact(
                     mimetype="text/html",
@@ -119,10 +121,12 @@ async def run(context: ResponseContext, request: str):
                     uris=[f"https://doi.org/{doi}"],
                     metadata={
                         "data_source": "External Publisher",
+                        "openAccess": is_open_access,
                     },
                 )
 
-            summary = _generate_by_id_response_summary(params.uuid, portal_url)
+            is_open_access = raw_response.get("openAccess", False)
+            summary = _generate_by_id_response_summary(params.uuid, portal_url, is_open_access)
             await context.reply(summary)
 
         except Exception as e:
@@ -135,11 +139,16 @@ async def run(context: ResponseContext, request: str):
             )
 
 
-def _generate_by_id_response_summary(lit_uuid: str, portal_url: str) -> str:
-    return (
+def _generate_by_id_response_summary(lit_uuid: str, portal_url: str, is_open_access: bool = False) -> str:
+    summary = (
         f"I have successfully retrieved the literature record with UUID {lit_uuid}. "
-        f"You can view the full record in the GBIF portal at {portal_url}."
     )
+    if is_open_access:
+        summary += "This paper is open access — you can read the full text by clicking the paper link. "
+    else:
+        summary += "This paper may be behind a paywall, the link will take you to the publisher page. "
+    summary += f"You can also view the full record in the GBIF portal at {portal_url}."
+    return summary
 
 
 # ── find_literature ────────────────────────────────────────────────────────
