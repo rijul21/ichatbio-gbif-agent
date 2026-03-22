@@ -246,6 +246,7 @@ async def run_search(context: ResponseContext, request: str):
 
             results_preview = []
             for r in raw_response.get("results", [])[:3]:
+                doi = r.get("identifiers", {}).get("doi")
                 results_preview.append({
                     "id": r.get("id"),
                     "title": r.get("title"),
@@ -255,7 +256,7 @@ async def run_search(context: ResponseContext, request: str):
                     "authors": [f"{a.get('firstName')} {a.get('lastName')}" for a in r.get("authors", [])[:3]],
                     "openAccess": r.get("openAccess"),
                     "peerReview": r.get("peerReview"),
-                    "doi": r.get("identifiers", {}).get("doi"),
+                    "doi_url": f"https://doi.org/{doi}" if doi else None,
                 })
             await process.log("Top results preview", data={"results": results_preview})
 

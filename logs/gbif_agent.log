@@ -307,3 +307,30 @@ Parsing request... | data=None
 2026-03-22T01:59:09Z [INFO] gbif.agent | process.create_artifact | args=() | kwargs={'mimetype': 'text/html', 'description': 'Full paper: A new westward migration route in an Asian passerine bird', 'uris': ['https://doi.org/10.1016/j.cub.2021.09.086'], 'metadata': {'data_source': 'External Publisher', 'openAccess': False}}
 2026-03-22T01:59:09Z [INFO] gbif.agent | context.reply | message=I have successfully retrieved the literature record with UUID 5b471600-54e4-3982-841b-d3fccb6b52ab. This paper may be behind a paywall, the link will take you to the publisher page. You can also view the full record in the GBIF portal at https://www.gbif.org/literature/5b471600-54e4-3982-841b-d3fccb6b52ab.
 2026-03-22T01:59:09Z [INFO] gbif.agent | SUCCESS | Entrypoint=find_literature_by_id | Duration=4.246s
+2026-03-22T02:06:51Z [INFO] gbif.agent | GBIF Agent logging system initialized (PID: 94910)
+2026-03-22T02:06:51Z [INFO] gbif.agent | TEST: Logging system startup check
+2026-03-22T02:07:21Z [INFO] gbif.agent | AGENT | Entrypoint=find_literature_by_id | Request=find literature by UUID
+2026-03-22T02:07:21Z [INFO] gbif.agent | ENTRY | Entrypoint=find_literature_by_id | Request=find literature by UUID
+2026-03-22T02:07:21Z [INFO] gbif.agent | Agent log ID: FIND_LITERATURE_BY_ID_deb7ab
+2026-03-22T02:07:21Z [INFO] gbif.agent | process.log | message=Request received: find literature by UUID
+
+Parsing request... | data=None
+2026-03-22T02:07:23Z [INFO] gbif.agent | process.log | message=Clarification needed: A UUID is required to retrieve literature by UUID, but none was provided in the request. | data=None
+2026-03-22T02:07:23Z [INFO] gbif.agent | context.reply | message=A UUID is required to retrieve literature by UUID, but none was provided in the request.
+2026-03-22T02:07:23Z [INFO] gbif.agent | SUCCESS | Entrypoint=find_literature_by_id | Duration=2.568s
+2026-03-22T02:07:58Z [INFO] gbif.agent | AGENT | Entrypoint=find_literature_by_id | Request=83a00190-7038-3970-a7e8-5e5563c40e37
+2026-03-22T02:07:58Z [INFO] gbif.agent | ENTRY | Entrypoint=find_literature_by_id | Request=83a00190-7038-3970-a7e8-5e5563c40e37
+2026-03-22T02:07:58Z [INFO] gbif.agent | Agent log ID: FIND_LITERATURE_BY_ID_a5a94b
+2026-03-22T02:07:58Z [INFO] gbif.agent | process.log | message=Request received: 83a00190-7038-3970-a7e8-5e5563c40e37
+
+Parsing request... | data=None
+2026-03-22T02:08:00Z [INFO] gbif.agent | process.log | message=Generated parameters | data={'uuid': UUID('83a00190-7038-3970-a7e8-5e5563c40e37')}
+2026-03-22T02:08:00Z [INFO] gbif.agent | process.log | message=Constructed API URL: https://api.gbif.org/v1/literature/83a00190-7038-3970-a7e8-5e5563c40e37 | data=None
+2026-03-22T02:08:00Z [INFO] gbif.agent | process.log | message=Querying GBIF for literature record... | data=None
+2026-03-22T02:08:01Z [INFO] gbif.agent | process.log | message=Data retrieval successful, status code 200 | data=None
+2026-03-22T02:08:01Z [INFO] gbif.agent | process.log | message=Record information | data={'id': '83a00190-7038-3970-a7e8-5e5563c40e37', 'title': 'Global Estimation and Mapping of the Conservation Status of Tree Species Using Artificial Intelligence', 'authors': [{'firstName': 'Sandro Valerio', 'lastName': 'Silva'}, {'firstName': 'Tobias', 'lastName': 'Andermann'}, {'firstName': 'Alexander', 'lastName': 'Zizka'}, {'firstName': 'Gregor', 'lastName': 'Kozlowski'}, {'firstName': 'Daniele', 'lastName': 'Silvestro'}], 'year': 2022, 'literatureType': 'JOURNAL', 'source': 'Frontiers in Plant Science', 'publisher': 'Frontiers Media SA', 'openAccess': True, 'peerReview': True, 'relevance': ['GBIF_USED'], 'topics': ['CONSERVATION'], 'doi': '10.3389/fpls.2022.839792'}
+2026-03-22T02:08:01Z [INFO] gbif.agent | process.log | message=Paper access | data={'doi_url': 'https://doi.org/10.3389/fpls.2022.839792', 'open_access': True}
+2026-03-22T02:08:01Z [INFO] gbif.agent | process.create_artifact | args=() | kwargs={'mimetype': 'application/json', 'description': 'Retrieve literature item with UUID 83a00190-7038-3970-a7e8-5e5563c40e37', 'uris': ['https://api.gbif.org/v1/literature/83a00190-7038-3970-a7e8-5e5563c40e37'], 'metadata': {'portal_url': 'https://www.gbif.org/literature/83a00190-7038-3970-a7e8-5e5563c40e37', 'data_source': 'GBIF Literature'}}
+2026-03-22T02:08:01Z [INFO] gbif.agent | process.create_artifact | args=() | kwargs={'mimetype': 'text/html', 'description': 'Full paper: Global Estimation and Mapping of the Conservation Status of Tree Species Using Artificial Intelligence', 'uris': ['https://doi.org/10.3389/fpls.2022.839792'], 'metadata': {'data_source': 'External Publisher', 'openAccess': True}}
+2026-03-22T02:08:01Z [INFO] gbif.agent | context.reply | message=I have successfully retrieved the literature record with UUID 83a00190-7038-3970-a7e8-5e5563c40e37. This paper is open access — you can read the full text by clicking the paper link. You can also view the full record in the GBIF portal at https://www.gbif.org/literature/83a00190-7038-3970-a7e8-5e5563c40e37.
+2026-03-22T02:08:01Z [INFO] gbif.agent | SUCCESS | Entrypoint=find_literature_by_id | Duration=2.898s
