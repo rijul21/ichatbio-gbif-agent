@@ -5,7 +5,7 @@ from ichatbio.agent_response import ResponseContext
 from ichatbio.types import AgentEntrypoint
 
 from src.gbif.api import GbifApi
-from src.gbif.fetch import execute_request
+from src.gbif.fetch import execute_request, execute_bytes_request
 from src.gbif.parser import parse
 from src.models.literature import GBIFLiteratureByIdParams, GBIFLiteratureSearchParams
 from src.models.validators import LiteratureByIdParamsValidator, LiteratureSearchParamsValidator
@@ -13,7 +13,7 @@ from src.log import with_logging, logger
 from src.utils import serialize_for_log, _generate_artifact_description
 
 
-# ── find_literature_by_id ──────────────────────────────────────────────────
+# ── find_literature_by_id 
 
 by_id_description = """
 **Use Case:** Use this entrypoint to retrieve a single literature item by its GBIF UUID.
@@ -60,54 +60,50 @@ async def run(context: ResponseContext, request: str):
 
         api = GbifApi()
         api_url = api.build_literature_by_id_url(params)
-        await process.log(f"Constructed API URL: {api_url}")
 
         try:
-            await process.log("Querying GBIF for literature record...")
+            await process.log("Querying GBIF", data={"url": api_url})
             raw_response = await execute_request(api_url)
             status_code = raw_response.get("status_code", 200)
 
             if status_code == 404:
-                await process.log("Literature UUID not found", data=raw_response)
-                await context.reply("The provided UUID is not valid or was not found in GBIF.")
+                await context.reply("The provided UUID was not found in GBIF.")
                 return
 
             if status_code != 200:
-                await process.log(
-                    f"Data retrieval failed with status code {status_code}",
-                    data=raw_response,
-                )
-                await context.reply(f"Data retrieval failed with status code {status_code}")
+                await context.reply(f"Request failed with status code {status_code}")
                 return
 
-            await process.log(f"Data retrieval successful, status code {status_code}")
-
-            subset_response = {
-                "id": raw_response.get("id"),
-                "title": raw_response.get("title"),
-                "authors": raw_response.get("authors"),
-                "year": raw_response.get("year"),
-                "literatureType": raw_response.get("literatureType"),
-                "source": raw_response.get("source"),
-                "publisher": raw_response.get("publisher"),
-                "openAccess": raw_response.get("openAccess"),
-                "peerReview": raw_response.get("peerReview"),
-                "relevance": raw_response.get("relevance"),
-                "topics": raw_response.get("topics"),
-                "doi": raw_response.get("identifiers", {}).get("doi"),
-            }
-            await process.log("Record information", data=subset_response)
-
-
-            portal_url = f"https://www.gbif.org/literature/{params.uuid}"
+            doi = raw_response.get("identifiers", {}).get("doi")
+            is_open_access = raw_response.get("openAccess", False)
 
             await process.log(
-            "Paper access",
-            data={
-                "doi_url": f"https://doi.org/{raw_response.get('identifiers', {}).get('doi')}" if raw_response.get('identifiers', {}).get('doi') else None,
-                "open_access": raw_response.get("openAccess", False),
-            },
-        )
+                "Record information",
+                data={
+                    "id": raw_response.get("id"),
+                    "title": raw_response.get("title"),
+                    "authors": raw_response.get("authors"),
+                    "year": raw_response.get("year"),
+                    "literatureType": raw_response.get("literatureType"),
+                    "source": raw_response.get("source"),
+                    "publisher": raw_response.get("publisher"),
+                    "openAccess": is_open_access,
+                    "peerReview": raw_response.get("peerReview"),
+                    "relevance": raw_response.get("relevance"),
+                    "topics": raw_response.get("topics"),
+                    "doi": doi,
+                }
+            )
+
+            await process.log(
+                "Paper access",
+                data={
+                    "doi_url": f"https://doi.org/{doi}" if doi else None,
+                    "open_access": is_open_access,
+                }
+            )
+
+            portal_url = f"https://www.gbif.org/literature/{params.uuid}"
 
             await process.create_artifact(
                 mimetype="application/json",
@@ -118,10 +114,6 @@ async def run(context: ResponseContext, request: str):
                     "data_source": "GBIF Literature",
                 },
             )
-
-            doi = raw_response.get("identifiers", {}).get("doi")
-            websites = raw_response.get("websites", [])
-            is_open_access = raw_response.get("openAccess", False)
 
             if doi:
                 await process.create_artifact(
@@ -134,33 +126,25 @@ async def run(context: ResponseContext, request: str):
                     },
                 )
 
-            is_open_access = raw_response.get("openAccess", False)
             summary = _generate_by_id_response_summary(params.uuid, portal_url, is_open_access)
             await context.reply(summary)
 
         except Exception as e:
-            await process.log(
-                "Error during literature retrieval",
-                data={"error": str(e), "agent_log_id": AGENT_LOG_ID},
-            )
-            await context.reply(
-                f"I encountered an error while retrieving the literature record: {str(e)}"
-            )
+            await process.log("Error", data={"error": str(e), "agent_log_id": AGENT_LOG_ID})
+            await context.reply(f"I encountered an error while retrieving the literature record: {str(e)}")
 
 
 def _generate_by_id_response_summary(lit_uuid: str, portal_url: str, is_open_access: bool = False) -> str:
-    summary = (
-        f"I have successfully retrieved the literature record with UUID {lit_uuid}. "
-    )
+    summary = f"I have successfully retrieved the literature record with UUID {lit_uuid}. "
     if is_open_access:
         summary += "This paper is open access — you can read the full text by clicking the paper link. "
     else:
-        summary += "This paper may be behind a paywall, the link will take you to the publisher page. "
+        summary += "This paper may be behind a paywall — the link will take you to the publisher page. "
     summary += f"You can also view the full record in the GBIF portal at {portal_url}."
     return summary
 
 
-# ── find_literature ────────────────────────────────────────────────────────
+# ── find_literature 
 
 search_description = """
 **Use Case:** Use this entrypoint to search for scientific literature that cites or uses GBIF-mediated biodiversity data.
@@ -204,46 +188,36 @@ async def run_search(context: ResponseContext, request: str):
         search_params = response.params
         api = GbifApi()
 
-        await process.log(
-            "Final search parameters",
-            data=serialize_for_log(search_params),
-        )
+        await process.log("Final search parameters", data=serialize_for_log(search_params))
 
         try:
             api_url = api.build_literature_search_url(search_params)
             portal_url = api.build_literature_portal_url(search_params)
 
-            await process.log(
-                "Sending literature search request to GBIF",
-                data={"url": api_url},
-            )
+            await process.log("Querying GBIF literature", data={"url": api_url})
 
             raw_response = await execute_request(api_url)
             status_code = raw_response.get("status_code", 200)
 
             if status_code != 200:
-                await process.log(
-                    f"Data retrieval failed with status code {status_code}",
-                    data=raw_response,
-                )
                 await context.reply(f"Literature search failed with status code {status_code}")
                 return
 
-            await process.log(f"Data retrieval successful, status code {status_code}")
+            count = raw_response.get("count", 0)
+            limit = raw_response.get("limit", 20)
+            offset = raw_response.get("offset", 0)
+            is_truncated = count > (limit + offset)
 
-            page_info = {
-                "count": raw_response.get("count"),
-                "limit": raw_response.get("limit"),
-                "offset": raw_response.get("offset"),
-            }
+            await process.log(
+                "Results summary",
+                data={
+                    "total": count,
+                    "returned": limit,
+                    "truncated": is_truncated,
+                }
+            )
 
-            pagination_message = "API pagination information of the response"
-            if page_info.get("count") and page_info.get("count") > (
-                (page_info.get("limit") or 0) + (page_info.get("offset") or 0)
-            ):
-                pagination_message = "Warning: The response is truncated due to pagination and only contains a subset of the literature available on GBIF."
-            await process.log(pagination_message, data=page_info)
-
+            # top 3 preview
             results_preview = []
             for r in raw_response.get("results", [])[:3]:
                 doi = r.get("identifiers", {}).get("doi")
@@ -258,14 +232,14 @@ async def run_search(context: ResponseContext, request: str):
                     "peerReview": r.get("peerReview"),
                     "doi_url": f"https://doi.org/{doi}" if doi else None,
                 })
-            await process.log("Top results preview", data={"results": results_preview})
+            await process.log("Top results", data={"results": results_preview})
 
+            # JSON artifact
             artifact_description = await _generate_artifact_description(
                 f"User request: {request} "
                 f"Search parameters: {json.dumps(serialize_for_log(search_params))}, "
                 f"URL: {api_url}"
             )
-
             await process.create_artifact(
                 mimetype="application/json",
                 description=artifact_description,
@@ -276,27 +250,43 @@ async def run_search(context: ResponseContext, request: str):
                 },
             )
 
-            summary = _generate_search_response_summary(page_info, portal_url)
+            # CSV export only if user requested it
+            if search_params.export and count > 0:
+                try:
+                    export_url = api.build_literature_export_url(search_params)
+                    await process.log("Fetching full CSV export", data={"url": export_url, "total_records": count})
+                    csv_bytes = await execute_bytes_request(export_url)
+                    await process.create_artifact(
+                        mimetype="text/csv",
+                        description=f"Full export: {count} literature results",
+                        content=csv_bytes,
+                        metadata={
+                            "data_source": "GBIF Literature Export",
+                            "total_records": count,
+                        },
+                    )
+                    await process.log("CSV export created", data={"total_records": count})
+                except Exception as e:
+                    await process.log("CSV export failed", data={"error": str(e)})
+
+            summary = _generate_search_response_summary(count, limit, is_truncated, bool(search_params.export), portal_url)
             await context.reply(summary)
 
         except Exception as e:
-            await process.log(
-                "Error during literature search",
-                data={"error": str(e), "agent_log_id": AGENT_LOG_ID},
-            )
-            await context.reply(
-                f"I encountered an error while searching for literature: {str(e)}"
-            )
+            await process.log("Error", data={"error": str(e), "agent_log_id": AGENT_LOG_ID})
+            await context.reply(f"I encountered an error while searching for literature: {str(e)}")
 
 
-def _generate_search_response_summary(page_info: dict, portal_url: str) -> str:
-    count = page_info.get("count") or 0
+def _generate_search_response_summary(count: int, limit: int, is_truncated: bool, exported: bool, portal_url: str) -> str:
     if count > 0:
-        summary = (
-            f"I found {count} publication(s) matching your criteria. "
-            f"Showing {page_info.get('limit')} results per page. "
-        )
+        summary = f"I found {count} publication(s) matching your criteria. "
+        if is_truncated and not exported:
+            summary += f"Showing top {limit} results — ask me to export all results as CSV to get the complete list. "
+        elif exported:
+            summary += f"A full CSV export of all {count} papers is attached. "
+        open_access_note = "Papers marked as open access can be read for free via their DOI link. "
+        summary += open_access_note
     else:
         summary = "I could not find any publications matching your criteria. "
-    summary += f"You can explore the full results in the GBIF literature portal at {portal_url}."
+    summary += f"You can also explore results in the GBIF literature portal at {portal_url}."
     return summary

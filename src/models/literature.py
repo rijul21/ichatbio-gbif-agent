@@ -159,3 +159,7 @@ class GBIFLiteratureSearchParams(ProductionBaseModel):
         None,
         description="Offset for pagination.",
     )
+    export: Optional[bool] = Field(
+    None,
+    description="Set to true if the user explicitly asks to export, download, or get all results as a CSV file.",
+    )

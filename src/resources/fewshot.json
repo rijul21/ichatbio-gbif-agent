@@ -440,6 +440,21 @@
                 "clarification_reason": null
             },
             "reasoning": "User provided an explicit dataset UUID, maps directly to gbifDatasetKey."
+        },
+
+        {
+            "request": "Export all papers about invasive species in Brazil as CSV",
+            "response": {
+                "params": {
+                    "q": "invasive species",
+                    "countriesOfCoverage": ["BR"],
+                    "export": true
+                },
+                "unresolved_params": null,
+                "clarification_needed": false,
+                "clarification_reason": null
+            },
+            "reasoning": "User explicitly asked to export results as CSV, maps to export=true. Invasive species maps to q. Brazil maps to countriesOfCoverage=BR."
         }
     ]
 }

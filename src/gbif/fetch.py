@@ -164,3 +164,14 @@ async def execute_paginated_request(
     }
 
     return combined_response
+
+
+def execute_sync_bytes_request(url: str) -> bytes:
+    """Execute a sync request and return raw bytes (for CSV/file downloads)."""
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
+    return response.content
+
+async def execute_bytes_request(url: str) -> bytes:
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, execute_sync_bytes_request, url)
