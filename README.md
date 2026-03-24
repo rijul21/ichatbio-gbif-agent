@@ -69,3 +69,43 @@ The validations ensures parameter generation accuracy in the LLM response:
 
 ## gbif api usage
 [gbif_api_usage.md](docs/gbif_api_usage.md)
+
+---
+
+## Literature Entrypoints
+
+Two new entrypoints were added to support searching and retrieving scientific literature indexed by GBIF.
+
+### find_literature
+Searches for publications that cite or use GBIF-mediated biodiversity data. Supports filters including free text search, publication type, year range, topics, peer review status, open access status, country of researcher, country of coverage, journal name, publisher, DOI, and taxon key.
+
+- **API:** `GET /v1/literature/search`
+- **Export:** When user explicitly asks to export, calls `GET /v1/literature/export` and attaches a full CSV artifact with all matching results
+- **Portal URL fix:** `literatureType` parameter is lowercased in portal URL to match GBIF portal's expected format (API uses uppercase, portal uses lowercase)
+
+### find_literature_by_id
+Retrieves a single literature record by its GBIF UUID. Creates two artifacts — the GBIF JSON record and a direct paper link via DOI resolver (`https://doi.org/{doi}`). Summary indicates whether the paper is open access (full text available) or paywalled.
+
+- **API:** `GET /v1/literature/{uuid}`
+- **Flow:** Get UUIDs from `find_literature` search results, then use this entrypoint for full details and paper access
+
+### Natural Flow
+```
+find_literature → search results with UUIDs → find_literature_by_id → full paper via DOI
+```
+
+---
+
+## Response Schemas
+Response schema documentation for each entrypoint is available in [docs/response_schemas/](docs/response_schemas/). These describe the key fields returned by each GBIF API endpoint and how to use them downstream.
+
+| Schema | Entrypoint |
+|--------|-----------|
+| [occurrence_search.md](docs/response_schemas/occurrence_search.md) | find_occurrence_records |
+| [occurrence_facets.md](docs/response_schemas/occurrence_facets.md) | count_occurrence_records |
+| [occurrence_by_id.md](docs/response_schemas/occurrence_by_id.md) | find_occurrence_by_id |
+| [species_search.md](docs/response_schemas/species_search.md) | find_species_records |
+| [taxonomic_information.md](docs/response_schemas/taxonomic_information.md) | find_taxonomic_information |
+| [dataset_search.md](docs/response_schemas/dataset_search.md) | find_datasets |
+| [literature_search.md](docs/response_schemas/literature_search.md) | find_literature |
+| [literature_by_id.md](docs/response_schemas/literature_by_id.md) | find_literature_by_id |
