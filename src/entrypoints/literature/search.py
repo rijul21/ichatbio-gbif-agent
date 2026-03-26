@@ -5,7 +5,7 @@ from ichatbio.agent_response import ResponseContext
 from ichatbio.types import AgentEntrypoint
 
 from src.gbif.api import GbifApi
-from src.gbif.fetch import execute_request, execute_bytes_request
+from src.gbif.fetch import execute_request
 from src.gbif.parser import parse
 from src.models.literature import GBIFLiteratureByIdParams, GBIFLiteratureSearchParams
 from src.models.validators import LiteratureByIdParamsValidator, LiteratureSearchParamsValidator
@@ -13,7 +13,7 @@ from src.log import with_logging, logger
 from src.utils import serialize_for_log, _generate_artifact_description
 
 
-# ── find_literature_by_id 
+# ── find_literature_by_id ──────────────────────────────────────────────────
 
 by_id_description = """
 **Use Case:** Use this entrypoint to retrieve a single literature item by its GBIF UUID.
@@ -75,7 +75,6 @@ async def run(context: ResponseContext, request: str):
                 return
 
             doi = raw_response.get("identifiers", {}).get("doi")
-            is_open_access = raw_response.get("openAccess", False)
 
             await process.log(
                 "Record information",
@@ -87,19 +86,11 @@ async def run(context: ResponseContext, request: str):
                     "literatureType": raw_response.get("literatureType"),
                     "source": raw_response.get("source"),
                     "publisher": raw_response.get("publisher"),
-                    "openAccess": is_open_access,
+                    "openAccess": raw_response.get("openAccess"),
                     "peerReview": raw_response.get("peerReview"),
                     "relevance": raw_response.get("relevance"),
                     "topics": raw_response.get("topics"),
                     "doi": doi,
-                }
-            )
-
-            await process.log(
-                "Paper access",
-                data={
-                    "doi_url": f"https://doi.org/{doi}" if doi else None,
-                    "open_access": is_open_access,
                 }
             )
 
@@ -122,11 +113,10 @@ async def run(context: ResponseContext, request: str):
                     uris=[f"https://doi.org/{doi}"],
                     metadata={
                         "data_source": "External Publisher",
-                        "openAccess": is_open_access,
                     },
                 )
 
-            summary = _generate_by_id_response_summary(params.uuid, portal_url, is_open_access)
+            summary = _generate_by_id_response_summary(params.uuid, portal_url)
             await context.reply(summary)
 
         except Exception as e:
@@ -134,17 +124,14 @@ async def run(context: ResponseContext, request: str):
             await context.reply(f"I encountered an error while retrieving the literature record: {str(e)}")
 
 
-def _generate_by_id_response_summary(lit_uuid: str, portal_url: str, is_open_access: bool = False) -> str:
-    summary = f"I have successfully retrieved the literature record with UUID {lit_uuid}. "
-    if is_open_access:
-        summary += "This paper is open access — you can read the full text by clicking the paper link. "
-    else:
-        summary += "This paper may be behind a paywall — the link will take you to the publisher page. "
-    summary += f"You can also view the full record in the GBIF portal at {portal_url}."
-    return summary
+def _generate_by_id_response_summary(lit_uuid: str, portal_url: str) -> str:
+    return (
+        f"I have successfully retrieved the literature record with UUID {lit_uuid}. "
+        f"You can view the full record in the GBIF portal at {portal_url}."
+    )
 
 
-# ── find_literature 
+# ── find_literature ────────────────────────────────────────────────────────
 
 search_description = """
 **Use Case:** Use this entrypoint to search for scientific literature that cites or uses GBIF-mediated biodiversity data.
@@ -217,7 +204,6 @@ async def run_search(context: ResponseContext, request: str):
                 }
             )
 
-            # top 3 preview
             results_preview = []
             for r in raw_response.get("results", [])[:3]:
                 doi = r.get("identifiers", {}).get("doi")
@@ -234,7 +220,6 @@ async def run_search(context: ResponseContext, request: str):
                 })
             await process.log("Top results", data={"results": results_preview})
 
-            # JSON artifact
             artifact_description = await _generate_artifact_description(
                 f"User request: {request} "
                 f"Search parameters: {json.dumps(serialize_for_log(search_params))}, "
@@ -250,26 +235,7 @@ async def run_search(context: ResponseContext, request: str):
                 },
             )
 
-            # CSV export only if user requested it
-            if search_params.export and count > 0:
-                try:
-                    export_url = api.build_literature_export_url(search_params)
-                    await process.log("Fetching full CSV export", data={"url": export_url, "total_records": count})
-                    csv_bytes = await execute_bytes_request(export_url)
-                    await process.create_artifact(
-                        mimetype="text/csv",
-                        description=f"Full export: {count} literature results",
-                        content=csv_bytes,
-                        metadata={
-                            "data_source": "GBIF Literature Export",
-                            "total_records": count,
-                        },
-                    )
-                    await process.log("CSV export created", data={"total_records": count})
-                except Exception as e:
-                    await process.log("CSV export failed", data={"error": str(e)})
-
-            summary = _generate_search_response_summary(count, limit, is_truncated, bool(search_params.export), portal_url)
+            summary = _generate_search_response_summary(count, limit, is_truncated, portal_url)
             await context.reply(summary)
 
         except Exception as e:
@@ -277,16 +243,12 @@ async def run_search(context: ResponseContext, request: str):
             await context.reply(f"I encountered an error while searching for literature: {str(e)}")
 
 
-def _generate_search_response_summary(count: int, limit: int, is_truncated: bool, exported: bool, portal_url: str) -> str:
+def _generate_search_response_summary(count: int, limit: int, is_truncated: bool, portal_url: str) -> str:
     if count > 0:
         summary = f"I found {count} publication(s) matching your criteria. "
-        if is_truncated and not exported:
-            summary += f"Showing top {limit} results — ask me to export all results as CSV to get the complete list. "
-        elif exported:
-            summary += f"A full CSV export of all {count} papers is attached. "
-        open_access_note = "Papers marked as open access can be read for free via their DOI link. "
-        summary += open_access_note
+        if is_truncated:
+            summary += f"Showing top {limit} results. "
     else:
         summary = "I could not find any publications matching your criteria. "
-    summary += f"You can also explore results in the GBIF literature portal at {portal_url}."
+    summary += f"You can explore the full results in the GBIF literature portal at {portal_url}."
     return summary

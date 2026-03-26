@@ -121,13 +121,6 @@ class GbifApi:
         query_string = urlencode(api_params, doseq=True)
         return f"{self.base_url}/literature/search?{query_string}"
     
-    def build_literature_export_url(self, params: GBIFLiteratureSearchParams) -> str:
-        api_params = self._convert_to_api_params(params)
-        api_params.pop("limit", None)
-        api_params.pop("offset", None)
-        api_params["format"] = "CSV"
-        query_string = urlencode(api_params, doseq=True)
-        return f"{self.base_url}/literature/export?{query_string}"
 
     def build_literature_portal_url(self, params: GBIFLiteratureSearchParams) -> str:
         api_params = self._convert_to_api_params(params)
