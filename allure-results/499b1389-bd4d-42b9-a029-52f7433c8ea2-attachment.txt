@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'country': [<CountryEnum.AU: 'AU'>], 'taxonKey': [216]}
+  expected : country: AU, taxonKey: 216
+  score    : 0.79
+  reason   : The Actual Output conveys the same key information as the Expected Output, including the country code 'AU' and taxonKey '216'. However, the Actual Output uses a Python enum representation and list format, which differs from the simpler string and integer format in the Expected Output. Despite this cosmetic difference, the meaning is preserved and no contradictory information is introduced.

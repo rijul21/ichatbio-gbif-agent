@@ -1,0 +1,99 @@
+[1m[31mERROR   [0m asyncio:base_events.py:1833 Task exception was never retrieved
+future: <Task finished name='Task-187' coro=<AsyncClient.aclose() done, defined at /Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 406, in aclose
+    await self._pool.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection.py", line 173, in aclose
+    await self._connection.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self._stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/anyio/streams/tls.py", line 241, in aclose
+    await self.transport_stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1329, in aclose
+    self._transport.close()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/selector_events.py", line 1213, in close
+    super().close()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/selector_events.py", line 875, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/base_events.py", line 799, in call_soon
+    self._check_closed()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/base_events.py", line 545, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+[1m[31mERROR   [0m asyncio:base_events.py:1833 Task exception was never retrieved
+future: <Task finished name='Task-188' coro=<AsyncClient.aclose() done, defined at /Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 406, in aclose
+    await self._pool.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection.py", line 173, in aclose
+    await self._connection.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self._stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/anyio/streams/tls.py", line 241, in aclose
+    await self.transport_stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1329, in aclose
+    self._transport.close()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/selector_events.py", line 1213, in close
+    super().close()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/selector_events.py", line 875, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/base_events.py", line 799, in call_soon
+    self._check_closed()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/base_events.py", line 545, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+[1m[31mERROR   [0m asyncio:base_events.py:1833 Task exception was never retrieved
+future: <Task finished name='Task-189' coro=<AsyncClient.aclose() done, defined at /Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 406, in aclose
+    await self._pool.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/connection.py", line 173, in aclose
+    await self._connection.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self._stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/anyio/streams/tls.py", line 241, in aclose
+    await self.transport_stream.aclose()
+  File "/Users/rijul/Documents/Gbif/ichatbio-gbif-agent/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1329, in aclose
+    self._transport.close()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/selector_events.py", line 1213, in close
+    super().close()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/selector_events.py", line 875, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/base_events.py", line 799, in call_soon
+    self._check_closed()
+  File "/Users/rijul/.pyenv/versions/3.12.13/lib/python3.12/asyncio/base_events.py", line 545, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed

@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'country': [<CountryEnum.BR: 'BR'>], 'taxonKey': [359]}
+  expected : country: BR, taxonKey: 359
+  score    : 0.80
+  reason   : The Actual Output conveys the same key information as the Expected Output, including the country code 'BR' and taxonKey '359'. The main difference is the Actual Output uses a Python enum representation and list format, while the Expected Output is a simplified string format. There is no contradictory or irrelevant information, but the formatting and data structure differences prevent a perfect score.

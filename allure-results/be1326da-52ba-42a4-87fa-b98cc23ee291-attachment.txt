@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'country': [<CountryEnum.FR: 'FR'>], 'taxonKey': [5]}
+  expected : country: FR, taxonKey: 5, basisOfRecord: PRESERVED_SPECIMEN
+  score    : 0.56
+  reason   : The Actual Output correctly includes the country and taxonKey values matching the Expected Output, fulfilling key concept requirements. However, it omits the basisOfRecord field entirely, which is a significant missing fact. There is no contradictory or irrelevant information, but the absence of basisOfRecord reduces alignment.

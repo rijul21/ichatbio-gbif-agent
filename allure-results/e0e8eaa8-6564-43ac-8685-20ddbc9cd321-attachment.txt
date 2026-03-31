@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'basisOfRecord': ['PRESERVED_SPECIMEN'], 'year': ['2000,2010'], 'continent': ['EUROPE'], 'taxonKey': [5231190]}
+  expected : continent: EUROPE, taxonKey: 5231190, basisOfRecord: PRESERVED_SPECIMEN, year: 2000,2010
+  score    : 0.89
+  reason   : The Actual Output and Expected Output convey the same key information: continent EUROPE, taxonKey 5231190, basisOfRecord PRESERVED_SPECIMEN, and years 2000 and 2010. The Actual Output uses a dictionary with lists as values, while the Expected Output is a formatted string, but this is a cosmetic difference. All key concepts are present and no contradictory information is introduced.

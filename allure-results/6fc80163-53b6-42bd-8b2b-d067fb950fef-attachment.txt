@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'country': ['IN'], 'taxonKey': [9703]}
+  expected : country: IN, taxonKey: 9703
+  score    : 0.87
+  reason   : The Actual Output conveys the same key information as the Expected Output, including the country code 'IN' and taxonKey '9703'. The difference in formatting (dictionary with lists vs. plain text) is cosmetic and does not affect meaning. No contradictory or irrelevant information is present.

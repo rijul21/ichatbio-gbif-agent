@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'year': ['2014,2016'], 'country': ['US'], 'stateProvince': ['Florida'], 'taxonKey': [212]}
+  expected : country: US, stateProvince: Florida, taxonKey: 212, year: 2014,2016
+  score    : 0.89
+  reason   : The Actual Output and Expected Output convey the same key information: country US, stateProvince Florida, taxonKey 212, and years 2014 and 2016. The only minor difference is the Actual Output presents the year values as a single string within a list, whereas the Expected Output shows them as a comma-separated string without list notation. This is a cosmetic difference and does not affect the conveyed facts. No contradictory or irrelevant information is introduced.

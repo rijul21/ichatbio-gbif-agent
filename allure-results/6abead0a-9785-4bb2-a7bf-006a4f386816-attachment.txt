@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'gbifId': 3441757979}
+  expected : gbifId: 3441757979
+  score    : 1.00
+  reason   : The Actual Output and Expected Output convey the same information with the identical key-value pair 'gbifId: 3441757979'. Differences are only in formatting and syntax, which are disregarded per the evaluation steps.

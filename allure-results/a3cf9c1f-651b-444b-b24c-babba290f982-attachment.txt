@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'taxonKey': [2439270]}
+  expected : taxonKey: 2439270
+  score    : 0.84
+  reason   : The Actual Output and Expected Output convey the same key information: the taxonKey value 2439270. The difference in formatting (list vs. scalar) is cosmetic and does not affect the meaning. There is no contradictory or irrelevant information introduced.

@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'country': ['ZA'], 'taxonKey': [5219404]}
+  expected : country: ZA, taxonKey: 5219404
+  score    : 0.85
+  reason   : The Actual Output conveys the same key information as the Expected Output, including the country code 'ZA' and taxonKey '5219404'. The main difference is the format: the Actual Output uses a dictionary with lists as values, while the Expected Output is a simple key-value pair string. This is a minor cosmetic difference and does not affect the conveyed facts or intent.

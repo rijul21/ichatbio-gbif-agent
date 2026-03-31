@@ -1,0 +1,6 @@
+
+  params
+  actual   : {'basisOfRecord': ['PRESERVED_SPECIMEN'], 'country': ['GB'], 'taxonKey': [216]}
+  expected : country: GB, taxonKey: 216, basisOfRecord: PRESERVED_SPECIMEN
+  score    : 0.93
+  reason   : The Actual Output and Expected Output convey the same key information: country GB, taxonKey 216, and basisOfRecord PRESERVED_SPECIMEN. The Actual Output uses a dictionary with lists as values, while the Expected Output is a formatted string, but this is a cosmetic difference. No contradictory or irrelevant information is introduced. The slight difference in data structure prevents a perfect score.
