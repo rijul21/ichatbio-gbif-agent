@@ -3,4 +3,5 @@
 .vscode/
 uv.lock
 __pycache__/
-*.gpkg
+*.gpkgallure-results/
+logs/*.log.*
