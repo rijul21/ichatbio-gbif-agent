@@ -1,21 +1,15 @@
 test_cases:
-  - user_message: Find occurrence record 182368733
-    expected_param: "gbifId: 182368733"
-  - user_message: Get me the details for GBIF occurrence 1291505203
-    expected_param: "gbifId: 1291505203"
-  - user_message: Look up gbif id 1826325281
-    expected_param: "gbifId: 1826325281"
-  - user_message: Show me occurrence 2238275141
-    expected_param: "gbifId: 2238275141"
-  - user_message: What is gbif record 2973785847?
-    expected_param: "gbifId: 2973785847"
-  - user_message: Retrieve occurrence 3441756825
-    expected_param: "gbifId: 3441756825"
-  - user_message: Show details for gbif record 3441756826
-    expected_param: "gbifId: 3441756826"
-  - user_message: I need info on occurrence id 3441757977
-    expected_param: "gbifId: 3441757977"
-  - user_message: Pull up gbif occurrence 3441757979
-    expected_param: "gbifId: 3441757979"
-  - user_message: Get occurrence 3441757982
-    expected_param: "gbifId: 3441757982"
+  - user_message: "Find the occurrence record 5292056925"
+    expected_description: "Occurrence record details for ID 5292056925"
+
+  - user_message: "Get details for GBIF occurrence ID 1056248566"
+    expected_description: "Occurrence record details for ID 1056248566"
+
+  - user_message: "Look up occurrence 2550975273"
+    expected_description: "Occurrence record details for ID 2550975273"
+
+  - user_message: "Show me record 4767074194"
+    expected_description: "Occurrence record details for ID 4767074194"
+
+  - user_message: "What is occurrence 1990198104?"
+    expected_description: "Occurrence record details for ID 1990198104"

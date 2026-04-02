@@ -1,30 +1,24 @@
 test_cases:
-  - user_message: How many occurrence records does GBIF have for birds in the United States?
-    expected_param: "country: US, taxonKey: 212"
+  - user_message: "How many bird records are there in Germany?"
+    expected_description: "Count of bird occurrence records from Germany"
 
-  - user_message: Count occurrences of Rattus rattus worldwide
-    expected_param: "taxonKey: 2439270"
+  - user_message: "Count of mammal observations in Brazil by year"
+    expected_description: "Breakdown of mammal occurrences in Brazil by year"
 
-  - user_message: How many plant records are there in Kenya?
-    expected_param: "country: KE, taxonKey: 6"
+  - user_message: "How many insect specimens does GBIF have from Japan?"
+    expected_description: "Count of insect specimen records from Japan"
 
-  - user_message: How many mammal records exist in Brazil?
-    expected_param: "country: BR, taxonKey: 359"
+  - user_message: "Give me a breakdown of butterfly records in France by basis of record"
+    expected_description: "Breakdown of Lepidoptera records in France by basis of record"
 
-  - user_message: How many insect records are there in Australia?
-    expected_param: "country: AU, taxonKey: 216"
+  - user_message: "How many occurrence records of Apis mellifera are there globally?"
+    expected_description: "Count of Apis mellifera occurrence records"
 
-  - user_message: How many records of Panthera leo are in Africa?
-    expected_param: "continent: AFRICA, taxonKey: 5219404"
+  - user_message: "Show me the number of plant specimens collected in Mexico between 2010 and 2020"
+    expected_description: "Count of plant specimens from Mexico, 2010-2020"
 
-  - user_message: How many bird records were collected in Canada between 2010 and 2020?
-    expected_param: "country: CA, taxonKey: 212, year: 2010,2020"
+  - user_message: "How many fungi records are in the United Kingdom by species?"
+    expected_description: "Breakdown of fungi records in United Kingdom by species"
 
-  - user_message: How many human observations of Aedes aegypti exist in South America?
-    expected_param: "continent: SOUTH_AMERICA, taxonKey: 1651891, basisOfRecord: HUMAN_OBSERVATION"
-
-  - user_message: How many preserved specimens of Fungi are in France?
-    expected_param: "country: FR, taxonKey: 5, basisOfRecord: PRESERVED_SPECIMEN"
-
-  - user_message: How many records of Passer domesticus were observed in India in 2018?
-    expected_param: "country: IN, taxonKey: 5231190, year: 2018"
+  - user_message: "Count reptile observations in Australia"
+    expected_description: "Count of reptile observations from Australia"
