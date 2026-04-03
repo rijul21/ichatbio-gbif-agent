@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'taxonKey': [5219404]}
-  expected : continent: AFRICA, taxonKey: 5219404
-  score    : 0.33
-  reason   : The Actual Output includes the taxonKey but as a list rather than a single value, which is a minor formatting difference. However, it completely omits the key concept of the continent 'AFRICA' present in the Expected Output, resulting in missing critical information. There is no contradictory information, but the absence of the continent reduces alignment significantly.

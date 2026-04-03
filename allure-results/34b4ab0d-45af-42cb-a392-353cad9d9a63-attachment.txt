@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'basisOfRecord': ['HUMAN_OBSERVATION'], 'eventDate': ['2015-08-15'], 'continent': ['NORTH_AMERICA'], 'taxonKey': [1341976]}
-  expected : taxonKey: 1341976, basisOfRecord: HUMAN_OBSERVATION, continent: NORTH_AMERICA, eventDate: 2015-08-15
-  score    : 0.96
-  reason   : The Actual Output and Expected Output convey the same information with all key concepts present: taxonKey, basisOfRecord, continent, and eventDate. Differences are only in formatting and data structure, which are disregarded per the evaluation steps.

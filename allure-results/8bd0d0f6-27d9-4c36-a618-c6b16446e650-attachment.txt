@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'year': ['2016,2026'], 'country': ['DE'], 'taxonKey': [2878688]}
-  expected : country: DE, taxonKey: 2878688, year: 2015
-  score    : 0.29
-  reason   : The Actual Output includes the correct country (DE) and taxonKey (2878688) matching the Expected Output, but the year values differ significantly: Actual Output has '2016,2026' while Expected Output has '2015'. This discrepancy in the year is a key factual difference, reducing alignment. There is no contradictory or irrelevant information, but the missing expected year lowers the score.

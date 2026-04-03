@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'gbifId': 1291505203}
-  expected : gbifId: 1291505203
-  score    : 1.00
-  reason   : The Actual Output and Expected Output convey the same key information, specifically the gbifId with the value 1291505203. Differences are only in formatting (JSON object vs. key-value pair), which are disregarded per the evaluation steps. No contradictory or irrelevant information is present.

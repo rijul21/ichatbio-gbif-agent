@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'basisOfRecord': ['HUMAN_OBSERVATION'], 'year': ['2019'], 'country': ['BR'], 'taxonKey': [1651891]}
-  expected : country: BR, taxonKey: 1651891, basisOfRecord: HUMAN_OBSERVATION, year: 2019
-  score    : 0.92
-  reason   : The Actual Output and Expected Output convey the same key information: country, taxonKey, basisOfRecord, and year with matching values. The Actual Output uses a dictionary with list values, while the Expected Output is a formatted string, but this is a cosmetic difference. No contradictory or irrelevant information is present. The only minor shortcoming is the difference in data structure representation.

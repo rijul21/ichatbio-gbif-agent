@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'taxonKey': [1651891, 2436436]}
-  expected : continent: SOUTH_AMERICA, taxonKey: 1651891, basisOfRecord: HUMAN_OBSERVATION
-  score    : 0.18
-  reason   : The Actual Output includes only the taxonKey values and omits the continent and basisOfRecord fields present in the Expected Output. While the taxonKey 1651891 is included, the Actual Output introduces an additional taxonKey (2436436) not in the Expected Output, and it lacks the key concepts of continent and basisOfRecord, resulting in incomplete alignment.

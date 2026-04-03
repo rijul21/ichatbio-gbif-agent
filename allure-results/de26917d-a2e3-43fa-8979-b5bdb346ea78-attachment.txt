@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'country': [<CountryEnum.CA: 'CA'>], 'taxonKey': [212]}
-  expected : country: CA, taxonKey: 212, year: 2010,2020
-  score    : 0.37
-  reason   : The Actual Output correctly includes the country and taxonKey values matching the Expected Output, fulfilling key concept presence. However, it omits the 'year' field entirely, which is a significant part of the Expected Output. There is no contradictory information, but the missing 'year' reduces alignment with the Expected Output.

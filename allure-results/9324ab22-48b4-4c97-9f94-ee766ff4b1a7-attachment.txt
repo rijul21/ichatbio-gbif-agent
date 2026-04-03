@@ -1,6 +1,0 @@
-
-  params
-  actual   : {'taxonKey': [2439270]}
-  expected : taxonKey: 2439270
-  score    : 0.83
-  reason   : The Actual Output conveys the same key information as the Expected Output, specifically the taxonKey value 2439270. The main difference is that the Actual Output presents the value inside a list, which is a minor structural variation but does not contradict or omit any facts. Cosmetic differences like formatting and punctuation are appropriately ignored.
