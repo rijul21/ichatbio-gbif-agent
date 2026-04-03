@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 from uuid import UUID
 
 from src.models.literature import GBIFLiteratureByIdParams, GBIFLiteratureSearchParams
+from pydantic import BaseModel
 
 from src.models.entrypoints import (
     GBIFOccurrenceSearchParams,
@@ -167,3 +168,31 @@ class GbifApi:
             )
             return f"{portal_base}?{query_string}"
         return portal_base
+    def build_portal_url(self, path: str, params: BaseModel | None) -> str:
+        """Convert an API URL to its corresponding portal URL."""
+        base_url = f"{self.portal_url}/{path}"
+        dict_params = params.model_dump(exclude_none=True) if params is not None else {}
+
+        # Remove facet-related and limit parameters
+        dict_params = {key: value for key, value in dict_params.items() if key not in  {
+            "limit",
+            "facet",
+            "facetLimit",
+            "facetOffset",
+            "facetMincount",
+            "facetMultiselect",
+        }}
+
+        # Construct portal URL
+        if dict_params:
+            arguments = "&".join(
+                "&".join((f"{parameter}={v}" for v in _as_list(value)))
+                for parameter, value in dict_params.items()
+                if value
+            )
+            return f"{base_url}?{arguments}&advanced=true"
+
+        return base_url
+
+def _as_list(value):
+    return value if isinstance(value, list) else [value]

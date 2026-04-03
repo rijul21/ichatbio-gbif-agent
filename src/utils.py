@@ -1,3 +1,5 @@
+from importlib import resources
+
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 from typing import Optional, Union
 import dataclasses
@@ -200,8 +202,7 @@ async def _preprocess_user_request(user_request: str):
     Translates organism-related terms in user request to scientific nomenclature
     and extracts location information.
     """
-    with open("src/resources/prompts/preprocess_request.md", "r") as file:
-        system_prompt = file.read()
+    system_prompt = resources.read_text("src.resources.prompts", "preprocess_request.md")
 
     messages = [
         {"role": "system", "content": system_prompt},

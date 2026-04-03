@@ -74,7 +74,7 @@ async def run(context: ResponseContext, request: str):
             await process.log(f"Data retrieval successful, status code {status_code}")
 
             total = raw_response.get("count", 0)
-            portal_url = api.build_portal_url(api_url)
+            portal_url = api.build_portal_url("dataset/search", params)
 
             page_info = {
                 "count": total,

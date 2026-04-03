@@ -117,7 +117,7 @@ async def run(context: ResponseContext, request: str):
             ):
                 pagination_message = "Warning: The response is truncated due to pagination and only contain subset of the data available on GBIF."
             await process.log(pagination_message, data=page_info)
-            portal_url = api.build_portal_url(api_url)
+            portal_url = api.build_portal_url("species/search", params)
 
             await process.create_artifact(
                 mimetype="application/json",

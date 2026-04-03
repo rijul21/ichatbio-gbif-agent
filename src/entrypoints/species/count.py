@@ -54,14 +54,14 @@ async def run(context: ResponseContext, request: str):
         expansion_response = await _preprocess_user_request(request)
         if expansion_response.locations:
             await process.log(
-                "Warning: Request include locations. This entrypoint cannot search for species records with specific locations."
+                "Warning: Request includes locations. This entrypoint cannot search for species records with specific locations."
             )
             await context.reply(
-                "Warning: Request include locations. This entrypoint cannot search for species records with specific locations. Please use occurrence search entrypoint instead."
+                "Warning: Request includes locations. This entrypoint cannot search for species records with specific locations. Please use occurrence search entrypoint instead."
             )
             return
 
-        expandedRequest = f"User request: {request} Identified organisms in the request: {json.dumps(serialize_organisms(expansion_response.organisms))}"
+        expanded_request = f"User request: {request} Identified organisms in the request: {json.dumps(serialize_organisms(expansion_response.organisms))}"
         await process.log(
             f"Expanded request",
             data={
@@ -73,7 +73,7 @@ async def run(context: ResponseContext, request: str):
         )
 
         response = await parse(
-            expandedRequest,
+            expanded_request,
             entrypoint.id,
             SpeciesFacetsParamsValidator,
             expansion_response,
@@ -126,7 +126,7 @@ async def run(context: ResponseContext, request: str):
                 pagination_message = "Warning: The response is truncated due to pagination and only contain subset of the data available on GBIF."
             await process.log(pagination_message, data=page_info)
 
-            portal_url = api.build_portal_url(api_url)
+            portal_url = api.build_portal_url("species/search", params)
 
             await process.create_artifact(
                 mimetype="application/json",

@@ -101,7 +101,7 @@ async def run(context: ResponseContext, request: str):
             }
             await process.log("Record information - ", data=subset_response)
 
-            portal_url = api.build_portal_url(api_url)
+            portal_url = f"{api.portal_url}/occurrence/{params.gbifId}"
 
             await process.create_artifact(
                 mimetype="application/json",

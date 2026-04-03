@@ -1,4 +1,5 @@
 import pytest
+
 from src.gbif.api import GbifApi
 from src.gbif.fetch import execute_sync_request
 from src.models.entrypoints import GBIFOccurrenceSearchParams, GBIFOccurrenceFacetsParams
@@ -28,7 +29,7 @@ def test_api_initialization(url_builder):
 
 
 def test_convert_to_api_params(url_builder):
-    basic_params = GBIFOccurrenceSearchParams( # type: ignore
+    basic_params = GBIFOccurrenceSearchParams(  # type: ignore
         q="Quercus robur",
         scientificName=["Quercus robur"],
         limit=10
@@ -39,7 +40,7 @@ def test_convert_to_api_params(url_builder):
     assert basic_result["limit"] == 10
     assert "offset" not in basic_result
 
-    enum_params = GBIFOccurrenceSearchParams( # type: ignore
+    enum_params = GBIFOccurrenceSearchParams(  # type: ignore
         basisOfRecord=[BasisOfRecordEnum.PRESERVED_SPECIMEN],
         continent=[ContinentEnum.EUROPE],
         occurrenceStatus=OccurrenceStatusEnum.PRESENT,
@@ -75,10 +76,22 @@ def test_url_building(url_builder):
     assert "facet=country" in facets_url
     assert "facetMincount=5" in facets_url
 
-    # Test portal URL conversion
-    api_url = "https://api.gbif.org/v1/occurrence/search?q=test"
-    portal_url = url_builder.build_portal_url(api_url)
-    assert portal_url == "https://gbif.org/occurrence/search?q=test"
+
+class TestBuildPortalURLs:
+    def test_occurrence_search(self, url_builder):
+        params = GBIFOccurrenceSearchParams(scientificName=["Quercus robur"], limit=5, offset=10)
+        portal_url = url_builder.build_portal_url("occurrence/search", params)
+        assert portal_url == "https://gbif.org/occurrence/search?offset=10&scientificName=Quercus robur&advanced=true"
+
+    def test_remove_facet_parameters(self, url_builder):
+        params = GBIFOccurrenceFacetsParams(country=["MN"], facet=["kingdom", "country"], facetMincount=5)
+        portal_url = url_builder.build_portal_url("occurrence/search", params)
+        assert portal_url == "https://gbif.org/occurrence/search?country=MN&advanced=true"
+
+    def test_build_portal_url_with_repeated_parameters(self, url_builder):
+        params = GBIFOccurrenceSearchParams(recordedBy=["Fred", "Wilma"])
+        portal_url = url_builder.build_portal_url("occurrence/search", params)
+        assert portal_url == "https://gbif.org/occurrence/search?recordedBy=Fred&recordedBy=Wilma&advanced=true"
 
 
 def test_complex_search_params(url_builder):
@@ -112,4 +125,4 @@ def test_complex_search_params(url_builder):
     assert api_params["occurrenceStatus"] == "PRESENT"
     assert api_params["license"] == ["CC0_1_0"]
     assert api_params["limit"] == 20
-    assert api_params["offset"] == 40 
+    assert api_params["offset"] == 40

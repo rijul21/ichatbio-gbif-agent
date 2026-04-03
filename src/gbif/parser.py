@@ -1,6 +1,7 @@
 import datetime
 import json
-from typing import Type, Optional
+from importlib import resources
+from typing import Type, Optional, TypeVar
 
 from instructor.core.exceptions import InstructorRetryException
 from pydantic import BaseModel, Field, create_model
@@ -74,39 +75,34 @@ def create_response_model(parameter_model: Type[BaseModel]) -> Type[BaseModel]:
 
 
 def get_system_prompt(entrypoint_id: str):
-    prompt = ""
-    with open("src/resources/prompts/parse_api_parameters.md", "r") as f:
-        prompt += f.read()
+    prompt = resources.read_text("src.resources.prompts", "parse_api_parameters.md")
 
-    examples = []
-    with open("src/resources/fewshot.json", "r") as f:
-        fewshot = json.load(f)
-        if entrypoint_id in fewshot.keys():
-            for idx, example in enumerate(fewshot[entrypoint_id]):
-                e = f"""
-                ### Example {idx + 1}:
-                ```json
-                {json.dumps(example, indent=2)}
-                ```
-                """
-                examples.append(e)
+    entrypoint_examples = json.loads(resources.read_text("src.resources", "fewshot.json"))
+    assert isinstance(entrypoint_examples, dict)
 
-    if examples:
-        prompt += "\n\n## Examples: \n\n" + "\n".join(examples)
+    examples = entrypoint_examples.get(entrypoint_id, ())
+    for idx, example in enumerate(examples):
+        example_text = f"""
+### Example {idx + 1}:
+```json
+{json.dumps(example)}
+```
+"""
+        prompt += example_text
 
     return prompt
 
 
 def format_organisms_parsing_response(
-    organisms: list[IdentifiedOrganism],
+        organisms: list[IdentifiedOrganism],
 ):
     message = f"""
     ```json
     Organisms identified in the user request: {
-        json.dumps([
-            organism.model_dump(exclude_none=True, mode="json") 
-            for organism in organisms
-        ], indent=2)
+    json.dumps([
+        organism.model_dump(exclude_none=True, mode="json")
+        for organism in organisms
+    ], indent=2)
     }
     ```
     """
@@ -114,7 +110,7 @@ def format_organisms_parsing_response(
 
 
 def format_locations_parsing_response(
-    locations: list[ResolvedLocation],
+        locations: list[ResolvedLocation],
 ):
     display_locations = []
     overall_statuses = []
@@ -136,21 +132,22 @@ def format_locations_parsing_response(
     message = f"""
     ```json
     Locations identified in the user request: {
-        json.dumps(display_locations, indent=2)
+    json.dumps(display_locations, indent=2)
     }
     ```
     """
     return message
 
+T = TypeVar('T', bound=BaseModel)
 
 # For validation errors - shorter delays
 @retry(wait=wait_exponential(multiplier=1, min=1, max=10), stop=stop_after_attempt(3))
 async def parse(
-    request: str,
-    entrypoint_id: str,
-    parameters_model: Type[BaseModel],
-    preprocess_information: Optional[UserRequestExpansion] = None,
-) -> Type[BaseModel]:
+        request: str,
+        entrypoint_id: str,
+        parameters_model: Type[T],
+        preprocess_information: Optional[UserRequestExpansion] = None,
+) -> T:
     response_model = create_response_model(parameters_model)
 
     client = await get_client()

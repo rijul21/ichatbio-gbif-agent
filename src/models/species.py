@@ -19,7 +19,7 @@ class SearchFilters(ProductionBaseModel):
     """Full-text search filters for species (q parameter for broad search, qField to narrow to specific fields)."""
 
     q: Optional[str] = Field(
-        None,
+        default=None,
         description="Simple full text search parameter covering scientific and vernacular names, species descriptions, distribution and entire classification. The value can be a simple word or phrase. Wildcards are not supported. Results are ordered by relevance. Only use this parameter if the user's request is vague and none of the other specific parameters are available.",
         examples=[
             "Puma concolor",
