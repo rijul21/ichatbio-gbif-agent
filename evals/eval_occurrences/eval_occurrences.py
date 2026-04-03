@@ -3,6 +3,7 @@ import pytest
 import yaml
 from deepeval.metrics import GEval
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+from src.log import logger
 
 
 def load_tests(filename):
@@ -31,11 +32,9 @@ by_id_equivalence = GEval(
 def eval_description(actual: str, expected: str, metric=description_equivalence):
     case = LLMTestCase(input="", expected_output=expected, actual_output=actual)
     metric.measure(case)
-    print(f"\n  Description Check:")
-    print(f"    actual   : {actual}")
-    print(f"    expected : {expected}")
-    print(f"    score    : {metric.score:.2f}")
-    print(f"    reason   : {metric.reason}")
+    logger.info(
+        f"Description Check | actual={actual} | expected={expected} | score={metric.score:.2f} | reason={metric.reason}"
+    )
     assert metric.score >= 0.5, f"Description check failed: {metric.reason}"
 
 
@@ -49,12 +48,9 @@ count_tests = load_tests("count_occurrence_records.yaml")
 async def test_find_occurrence_records(run_agent, test_case):
     user_message = test_case["user_message"]
     expected_description = test_case["expected_description"]
-
     result = await run_agent("find_occurrence_records", user_message)
-
     if "description" not in result:
         pytest.fail("No artifact returned - agent likely asked for clarification")
-
     eval_description(result["description"], expected_description)
 
 
@@ -63,12 +59,9 @@ async def test_find_occurrence_records(run_agent, test_case):
 async def test_find_occurrence_by_id(run_agent, test_case):
     user_message = test_case["user_message"]
     expected_description = test_case["expected_description"]
-
     result = await run_agent("find_occurrence_by_id", user_message)
-
     if "description" not in result:
         pytest.fail("No artifact returned - agent likely asked for clarification")
-
     eval_description(result["description"], expected_description, metric=by_id_equivalence)
 
 
@@ -77,10 +70,7 @@ async def test_find_occurrence_by_id(run_agent, test_case):
 async def test_count_occurrence_records(run_agent, test_case):
     user_message = test_case["user_message"]
     expected_description = test_case["expected_description"]
-
     result = await run_agent("count_occurrence_records", user_message)
-
     if "description" not in result:
         pytest.fail("No artifact returned - agent likely asked for clarification")
-
     eval_description(result["description"], expected_description)
