@@ -1,0 +1,50 @@
+test_cases:
+  - user_message: "Find records of Rattus rattus"
+    expected_param: "taxonKey: 2439270"
+    expected_description: "Occurrence records for Rattus rattus"
+    expected_reply: "Successfully searched for Rattus rattus occurrences. Found records with portal link."
+
+  - user_message: "Find records of birds in Florida United States"
+    expected_param: "country: US, stateProvince: Florida, taxonKey: 212"
+    expected_description: "Bird occurrence records from Florida, United States"
+    expected_reply: "Successfully searched for bird occurrences in Florida, US. Found records with portal link."
+
+  - user_message: "Find records of Aves in Florida United States from 2014 to 2016"
+    expected_param: "country: US, stateProvince: Florida, taxonKey: 212, year: 2014,2016"
+    expected_description: "Bird occurrence records from Florida, 2014-2016"
+    expected_reply: "Successfully searched for bird occurrences in Florida 2014-2016. Found records with portal link."
+
+  - user_message: "Find human observations of honey bees in North America on 2015-08-15"
+    expected_param: "taxonKey: 1341976, basisOfRecord: HUMAN_OBSERVATION, continent: NORTH_AMERICA, eventDate: 2015-08-15"
+    expected_description: "Human observations of Apis mellifera in North America, 2015-08-15"
+    expected_reply: "Successfully searched for honey bee observations in North America. Found records with portal link."
+
+  - user_message: "Find occurrence records of Panthera leo in South Africa"
+    expected_param: "country: ZA, taxonKey: 5219404"
+    expected_description: "Panthera leo occurrence records from South Africa"
+    expected_reply: "Successfully searched for Panthera leo occurrences in South Africa. Found records with portal link."
+
+  - user_message: "Find preserved specimens of Insecta in the United Kingdom"
+    expected_param: "country: GB, taxonKey: 216, basisOfRecord: PRESERVED_SPECIMEN"
+    expected_description: "Insect specimens from United Kingdom"
+    expected_reply: "Successfully searched for insect specimens in UK. Found records with portal link."
+
+  - user_message: "Find records of Felidae in India"
+    expected_param: "country: IN, taxonKey: 9703"
+    expected_description: "Felidae occurrence records from India"
+    expected_reply: "Successfully searched for Felidae occurrences in India. Found records with portal link."
+
+  - user_message: "Find human observations of Aedes aegypti in Brazil in 2019"
+    expected_param: "country: BR, taxonKey: 1651891, basisOfRecord: HUMAN_OBSERVATION, year: 2019"
+    expected_description: "Human observations of Aedes aegypti in Brazil, 2019"
+    expected_reply: "Successfully searched for Aedes aegypti observations in Brazil 2019. Found records with portal link."
+
+  - user_message: "Find records of Quercus robur in Germany from 2015 onwards"
+    expected_param: "country: DE, taxonKey: 2878688, year: 2015,2026"
+    expected_description: "Quercus robur records from Germany, 2015-present"
+    expected_reply: "Successfully searched for Quercus robur occurrences in Germany from 2015. Found records with portal link."
+
+  - user_message: "Find preserved specimens of Passer domesticus in Europe between 2000 and 2010"
+    expected_param: "continent: EUROPE, taxonKey: 5231190, basisOfRecord: PRESERVED_SPECIMEN, year: 2000,2010"
+    expected_description: "Preserved specimens of Passer domesticus in Europe, 2000-2010"
+    expected_reply: "Successfully searched for Passer domesticus specimens in Europe 2000-2010. Found records with portal link."

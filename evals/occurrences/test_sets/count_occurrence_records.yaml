@@ -1,0 +1,39 @@
+test_cases:
+  - user_message: "How many bird records are there in Germany?"
+    expected_param: "country: DE"
+    expected_description: "Count of bird occurrence records from Germany"
+    expected_reply: "Found bird occurrence records in Germany with count and portal link."
+
+  - user_message: "Count of mammal observations in Brazil by year"
+    expected_param: "country: BR, facet: year"
+    expected_description: "Breakdown of mammal occurrences in Brazil by year"
+    expected_reply: "Found mammal occurrences in Brazil with breakdown by year and portal link."
+
+  - user_message: "How many insect specimens does GBIF have from Japan?"
+    expected_param: "country: JP, basisOfRecord: PRESERVED_SPECIMEN"
+    expected_description: "Count of insect specimen records from Japan"
+    expected_reply: "Found insect specimen records from Japan with count and portal link."
+
+  - user_message: "Give me a breakdown of butterfly records in France by basis of record"
+    expected_param: "country: FR, facet: basisOfRecord"
+    expected_description: "Breakdown of Lepidoptera records in France by basis of record"
+    expected_reply: "Found butterfly records in France with breakdown by basis of record and portal link."
+
+  - user_message: "How many occurrence records of Apis mellifera are there globally?"
+    expected_description: "Count of Apis mellifera occurrence records"
+    expected_reply: "Found Apis mellifera occurrence records globally with count and portal link."
+
+  - user_message: "Show me the number of plant specimens collected in Mexico between 2010 and 2020"
+    expected_param: "country: MX, basisOfRecord: PRESERVED_SPECIMEN"
+    expected_description: "Count of plant specimens from Mexico, 2010-2020"
+    expected_reply: "Found plant specimen records from Mexico 2010-2020 with count and portal link."
+
+  - user_message: "How many fungi records are in the United Kingdom by species?"
+    expected_param: "country: GB, facet: speciesKey"
+    expected_description: "Breakdown of fungi records in United Kingdom by species"
+    expected_reply: "Found fungi records in United Kingdom with breakdown by species and portal link."
+
+  - user_message: "Count reptile observations in Australia"
+    expected_param: "country: AU"
+    expected_description: "Count of reptile observations from Australia"
+    expected_reply: "Found reptile observations in Australia with count and portal link."

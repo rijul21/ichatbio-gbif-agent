@@ -1,0 +1,25 @@
+test_cases:
+  - user_message: "Find the occurrence record 5292056925"
+    expected_param: "gbifId: 5292056925"
+    expected_description: "Occurrence record details for ID 5292056925"
+    expected_reply: "Successfully retrieved occurrence record 5292056925 with portal link."
+
+  - user_message: "Get details for GBIF occurrence ID 1056248566"
+    expected_param: "gbifId: 1056248566"
+    expected_description: "Occurrence record details for ID 1056248566"
+    expected_reply: "Successfully retrieved occurrence record 1056248566 with portal link."
+
+  - user_message: "Look up occurrence 2550975273"
+    expected_param: "gbifId: 2550975273"
+    expected_description: "Occurrence record details for ID 2550975273"
+    expected_reply: "Successfully retrieved occurrence record 2550975273 with portal link."
+
+  - user_message: "Show me record 4767074194"
+    expected_param: "gbifId: 4767074194"
+    expected_description: "Occurrence record details for ID 4767074194"
+    expected_reply: "Successfully retrieved occurrence record 4767074194 with portal link."
+
+  - user_message: "What is occurrence 1990198104?"
+    expected_param: "gbifId: 1990198104"
+    expected_description: "Occurrence record details for ID 1990198104"
+    expected_reply: "Successfully retrieved occurrence record 1990198104 with portal link."
