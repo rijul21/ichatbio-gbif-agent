@@ -6,10 +6,17 @@ from src.log import logger
 from evals.helpers import parse_params, normalize
 
 
-# metrics for GEval
+# GEval metrics
 description_metric = GEval(
     name="Description Equivalence",
     criteria="Are the descriptions semantically equivalent? Same organism, location, time. Cosmetic differences okay.",
+    evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.EXPECTED_OUTPUT],
+    model="gpt-4.1-mini"
+)
+
+by_id_description_metric = GEval(
+    name="By ID Description",
+    criteria="Do both descriptions refer to the same occurrence record ID? Wording differences are acceptable.",
     evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.EXPECTED_OUTPUT],
     model="gpt-4.1-mini"
 )
@@ -55,12 +62,13 @@ def check_portal_url(url: str, expected_str: str):
         logger.info(f"Portal URL Check PASSED")
 
 
-def check_description(actual: str, expected: str):
+def check_description(actual: str, expected: str, by_id: bool = False):
     """Check description using GEval"""
+    metric = by_id_description_metric if by_id else description_metric
     case = LLMTestCase(input="", expected_output=expected, actual_output=actual)
-    description_metric.measure(case)
-    logger.info(f"Description | actual={actual} | expected={expected} | score={description_metric.score:.2f}")
-    assert description_metric.score >= 0.5, f"Description failed: {description_metric.reason}"
+    metric.measure(case)
+    logger.info(f"Description | actual={actual} | expected={expected} | score={metric.score:.2f}")
+    assert metric.score >= 0.5, f"Description failed: {metric.reason}"
 
 
 def check_reply(actual: str, expected: str):

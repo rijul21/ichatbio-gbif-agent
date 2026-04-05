@@ -16,7 +16,7 @@ async def test_find_occurrence_by_id(run_agent, test_case):
         check_params(result["params"], param)
     
     assert result["description"], "No description returned"
-    check_description(result["description"], test_case["expected_description"])
+    check_description(result["description"], test_case["expected_description"], by_id=True)
     
     if expected_reply := test_case.get("expected_reply"):
         assert result["reply"], "No reply returned"
