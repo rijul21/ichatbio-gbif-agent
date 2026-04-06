@@ -142,10 +142,10 @@ class GBIFLiteratureSearchParams(ProductionBaseModel):
         examples=[[2435098]],
     )
     gbifDatasetKey: Optional[List[UUID]] = Field(
-    None,
-    description="UUID of a GBIF dataset referenced in the publication.",
-    examples=[["50c9509d-22c7-4a22-a47d-8c48425ef4a7"]],
-    )  
+        None,
+        description="UUID of a GBIF dataset referenced in the publication.",
+        examples=[["50c9509d-22c7-4a22-a47d-8c48425ef4a7"]],
+    )
     language: Optional[str] = Field(
         None,
         description="Language of publication as ISO 639-2 code.",
@@ -158,4 +158,21 @@ class GBIFLiteratureSearchParams(ProductionBaseModel):
     offset: Optional[int] = Field(
         None,
         description="Offset for pagination.",
+    )
+
+
+class GBIFLiteratureFacetsParams(GBIFLiteratureSearchParams):
+    facet: Optional[List[str]] = Field(
+        None,
+        description="Fields to facet by (e.g. 'year', 'topics', 'relevance', 'literatureType', 'countriesOfResearcher', 'countriesOfCoverage').",
+        examples=[["year"], ["topics", "relevance"]],
+    )
+    facetMincount: Optional[int] = Field(
+        None,
+        description="Minimum count for a facet value to be included in results.",
+        examples=[1, 10],
+    )
+    facetMultiselect: Optional[bool] = Field(
+        None,
+        description="If true, facet counts are not filtered by the facet parameter.",
     )
