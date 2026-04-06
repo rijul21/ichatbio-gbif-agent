@@ -22,8 +22,9 @@ from src.utils import (
 )
 
 
-
+# ══════════════════════════════════════════════════════════════════════════════
 # find_literature_by_id
+# ══════════════════════════════════════════════════════════════════════════════
 
 by_id_description = """
 **Use Case:** Use this entrypoint to retrieve a single literature item by its GBIF UUID.
@@ -148,8 +149,9 @@ def _generate_by_id_response_summary(lit_uuid: str, portal_url: str) -> str:
     )
 
 
-
-#find_literature
+# ══════════════════════════════════════════════════════════════════════════════
+# find_literature
+# ══════════════════════════════════════════════════════════════════════════════
 
 search_description = """
 **Use Case:** Use this entrypoint to search for scientific literature that cites or uses GBIF-mediated biodiversity data.
@@ -168,11 +170,16 @@ search_entrypoint = AgentEntrypoint(
 )
 
 
+# Higher taxonomic ranks that should use gbifHigherTaxonKey
+HIGHER_TAXON_RANKS = {"family", "order", "class", "phylum", "kingdom"}
+
+
 @with_logging("find_literature")
 async def run_search(context: ResponseContext, request: str):
     """
     Searches for scientific literature that cites or uses GBIF-mediated data.
     Includes preprocessing to extract organisms and resolve them to GBIF taxon keys.
+    Uses gbifHigherTaxonKey for family/order/class level queries.
     """
     async with context.begin_process("Searching GBIF Literature") as process:
         AGENT_LOG_ID = f"FIND_LITERATURE_{str(uuid.uuid4())[:6]}"
@@ -192,12 +199,11 @@ async def run_search(context: ResponseContext, request: str):
             },
         )
 
-        # build expanded request with identified organisms 
         expanded_request = (
             f"User request: {request} "
             f"Identified organisms in the request: {json.dumps(serialize_organisms(expansion_response.organisms))}"
         )
-        
+        # ─────────────────────────────────────────────────────────────────
 
         response = await parse(
             expanded_request,
@@ -217,7 +223,7 @@ async def run_search(context: ResponseContext, request: str):
         search_params = response.params
         api = GbifApi()
 
-        #resolving organisms to GBIF taxon keys
+        # ─── Resolve organisms to GBIF taxon keys ───────────────────────
         if expansion_response.organisms:
             await process.log(
                 f"Resolving {len(expansion_response.organisms)} organism(s) to GBIF taxon keys..."
@@ -226,22 +232,41 @@ async def run_search(context: ResponseContext, request: str):
                 api, expansion_response.organisms, process
             )
             if taxon_keys:
-                ##Get existing gbifTaxonKey values (if any) and merge
-                existing_keys = search_params.gbifTaxonKey or []
-                merged_keys = list(set(existing_keys + taxon_keys))
+                # Determine if we should use gbifTaxonKey or gbifHigherTaxonKey
+                # based on the taxonomic rank of the organisms
+                organism_ranks = [
+                    org.taxonomic_rank.lower()
+                    for org in expansion_response.organisms
+                    if org.taxonomic_rank
+                ]
 
-                search_params = search_params.model_copy(
-                    update={"gbifTaxonKey": merged_keys}
-                )
-                await process.log(
-                    f"Resolved to gbifTaxonKey: {merged_keys}",
-                    data={"gbifTaxonKey": merged_keys},
-                )
+                # If any organism is a higher rank, use gbifHigherTaxonKey
+                if any(rank in HIGHER_TAXON_RANKS for rank in organism_ranks):
+                    existing_keys = search_params.gbifHigherTaxonKey or []
+                    merged_keys = list(set(existing_keys + taxon_keys))
+                    search_params = search_params.model_copy(
+                        update={"gbifHigherTaxonKey": merged_keys}
+                    )
+                    await process.log(
+                        f"Resolved to gbifHigherTaxonKey (higher taxon detected): {merged_keys}",
+                        data={"gbifHigherTaxonKey": merged_keys},
+                    )
+                else:
+                    # Species or genus level - use gbifTaxonKey
+                    existing_keys = search_params.gbifTaxonKey or []
+                    merged_keys = list(set(existing_keys + taxon_keys))
+                    search_params = search_params.model_copy(
+                        update={"gbifTaxonKey": merged_keys}
+                    )
+                    await process.log(
+                        f"Resolved to gbifTaxonKey: {merged_keys}",
+                        data={"gbifTaxonKey": merged_keys},
+                    )
             else:
                 await process.log(
                     "Could not resolve organisms to taxon keys, will use free text search if q parameter is set"
                 )
-       
+        # ─────────────────────────────────────────────────────────────────
 
         await process.log(
             "Final search parameters", data=serialize_for_log(search_params)
