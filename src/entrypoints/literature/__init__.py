@@ -1,3 +1,4 @@
-from . import search
 
-__all__ = ["search"]
+from . import search, count
+
+__all__ = ["search", "count"]
