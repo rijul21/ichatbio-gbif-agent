@@ -7,13 +7,23 @@ from ichatbio.types import AgentEntrypoint
 from src.gbif.api import GbifApi
 from src.gbif.fetch import execute_request
 from src.gbif.parser import parse
+from src.gbif.resolve_parameters import resolve_names_to_taxonkeys
 from src.models.literature import GBIFLiteratureByIdParams, GBIFLiteratureSearchParams
-from src.models.validators import LiteratureByIdParamsValidator, LiteratureSearchParamsValidator
+from src.models.validators import (
+    LiteratureByIdParamsValidator,
+    LiteratureSearchParamsValidator,
+)
 from src.log import with_logging, logger
-from src.utils import serialize_for_log, _generate_artifact_description
+from src.utils import (
+    serialize_for_log,
+    _generate_artifact_description,
+    _preprocess_user_request,
+    serialize_organisms,
+)
 
 
-# ── find_literature_by_id ──────────────────────────────────────────────────
+
+# find_literature_by_id
 
 by_id_description = """
 **Use Case:** Use this entrypoint to retrieve a single literature item by its GBIF UUID.
@@ -34,6 +44,9 @@ by_id_entrypoint = AgentEntrypoint(
 
 @with_logging("find_literature_by_id")
 async def run(context: ResponseContext, request: str):
+    """
+    Retrieves a single literature record by its GBIF UUID.
+    """
     async with context.begin_process("Retrieving GBIF Literature by ID") as process:
         AGENT_LOG_ID = f"FIND_LITERATURE_BY_ID_{str(uuid.uuid4())[:6]}"
         logger.info(f"Agent log ID: {AGENT_LOG_ID}")
@@ -91,7 +104,7 @@ async def run(context: ResponseContext, request: str):
                     "relevance": raw_response.get("relevance"),
                     "topics": raw_response.get("topics"),
                     "doi": doi,
-                }
+                },
             )
 
             portal_url = f"https://www.gbif.org/literature/{params.uuid}"
@@ -120,8 +133,12 @@ async def run(context: ResponseContext, request: str):
             await context.reply(summary)
 
         except Exception as e:
-            await process.log("Error", data={"error": str(e), "agent_log_id": AGENT_LOG_ID})
-            await context.reply(f"I encountered an error while retrieving the literature record: {str(e)}")
+            await process.log(
+                "Error", data={"error": str(e), "agent_log_id": AGENT_LOG_ID}
+            )
+            await context.reply(
+                f"I encountered an error while retrieving the literature record: {str(e)}"
+            )
 
 
 def _generate_by_id_response_summary(lit_uuid: str, portal_url: str) -> str:
@@ -131,7 +148,8 @@ def _generate_by_id_response_summary(lit_uuid: str, portal_url: str) -> str:
     )
 
 
-# ── find_literature ────────────────────────────────────────────────────────
+
+#find_literature
 
 search_description = """
 **Use Case:** Use this entrypoint to search for scientific literature that cites or uses GBIF-mediated biodiversity data.
@@ -152,13 +170,37 @@ search_entrypoint = AgentEntrypoint(
 
 @with_logging("find_literature")
 async def run_search(context: ResponseContext, request: str):
+    """
+    Searches for scientific literature that cites or uses GBIF-mediated data.
+    Includes preprocessing to extract organisms and resolve them to GBIF taxon keys.
+    """
     async with context.begin_process("Searching GBIF Literature") as process:
         AGENT_LOG_ID = f"FIND_LITERATURE_{str(uuid.uuid4())[:6]}"
         logger.info(f"Agent log ID: {AGENT_LOG_ID}")
         await process.log(f"Request received: {request}\n\nParsing request...")
 
+        # ─── Preprocess: Extract organisms from user request ────────────
+        expansion_response = await _preprocess_user_request(request)
+
+        await process.log(
+            "Expanded request",
+            data={
+                "original_request": request,
+                "identified_organisms": serialize_organisms(
+                    expansion_response.organisms
+                ),
+            },
+        )
+
+        # build expanded request with identified organisms 
+        expanded_request = (
+            f"User request: {request} "
+            f"Identified organisms in the request: {json.dumps(serialize_organisms(expansion_response.organisms))}"
+        )
+        
+
         response = await parse(
-            request,
+            expanded_request,
             search_entrypoint.id,
             LiteratureSearchParamsValidator,
         )
@@ -175,7 +217,35 @@ async def run_search(context: ResponseContext, request: str):
         search_params = response.params
         api = GbifApi()
 
-        await process.log("Final search parameters", data=serialize_for_log(search_params))
+        #resolving organisms to GBIF taxon keys
+        if expansion_response.organisms:
+            await process.log(
+                f"Resolving {len(expansion_response.organisms)} organism(s) to GBIF taxon keys..."
+            )
+            taxon_keys = await resolve_names_to_taxonkeys(
+                api, expansion_response.organisms, process
+            )
+            if taxon_keys:
+                ##Get existing gbifTaxonKey values (if any) and merge
+                existing_keys = search_params.gbifTaxonKey or []
+                merged_keys = list(set(existing_keys + taxon_keys))
+
+                search_params = search_params.model_copy(
+                    update={"gbifTaxonKey": merged_keys}
+                )
+                await process.log(
+                    f"Resolved to gbifTaxonKey: {merged_keys}",
+                    data={"gbifTaxonKey": merged_keys},
+                )
+            else:
+                await process.log(
+                    "Could not resolve organisms to taxon keys, will use free text search if q parameter is set"
+                )
+       
+
+        await process.log(
+            "Final search parameters", data=serialize_for_log(search_params)
+        )
 
         try:
             api_url = api.build_literature_search_url(search_params)
@@ -187,7 +257,9 @@ async def run_search(context: ResponseContext, request: str):
             status_code = raw_response.get("status_code", 200)
 
             if status_code != 200:
-                await context.reply(f"Literature search failed with status code {status_code}")
+                await context.reply(
+                    f"Literature search failed with status code {status_code}"
+                )
                 return
 
             count = raw_response.get("count", 0)
@@ -201,27 +273,34 @@ async def run_search(context: ResponseContext, request: str):
                     "total": count,
                     "returned": limit,
                     "truncated": is_truncated,
-                }
+                },
             )
 
+            # Log preview of top results
             results_preview = []
             for r in raw_response.get("results", [])[:3]:
                 doi = r.get("identifiers", {}).get("doi")
-                results_preview.append({
-                    "id": r.get("id"),
-                    "title": r.get("title"),
-                    "year": r.get("year"),
-                    "literatureType": r.get("literatureType"),
-                    "source": r.get("source"),
-                    "authors": [f"{a.get('firstName')} {a.get('lastName')}" for a in r.get("authors", [])[:3]],
-                    "openAccess": r.get("openAccess"),
-                    "peerReview": r.get("peerReview"),
-                    "doi_url": f"https://doi.org/{doi}" if doi else None,
-                })
+                results_preview.append(
+                    {
+                        "id": r.get("id"),
+                        "title": r.get("title"),
+                        "year": r.get("year"),
+                        "literatureType": r.get("literatureType"),
+                        "source": r.get("source"),
+                        "authors": [
+                            f"{a.get('firstName')} {a.get('lastName')}"
+                            for a in r.get("authors", [])[:3]
+                        ],
+                        "openAccess": r.get("openAccess"),
+                        "peerReview": r.get("peerReview"),
+                        "doi_url": f"https://doi.org/{doi}" if doi else None,
+                    }
+                )
             await process.log("Top results", data={"results": results_preview})
 
             artifact_description = await _generate_artifact_description(
                 f"User request: {request} "
+                f"Identified organisms: {json.dumps(serialize_organisms(expansion_response.organisms))}, "
                 f"Search parameters: {json.dumps(serialize_for_log(search_params))}, "
                 f"URL: {api_url}"
             )
@@ -235,20 +314,30 @@ async def run_search(context: ResponseContext, request: str):
                 },
             )
 
-            summary = _generate_search_response_summary(count, limit, is_truncated, portal_url)
+            summary = _generate_search_response_summary(
+                count, limit, is_truncated, portal_url
+            )
             await context.reply(summary)
 
         except Exception as e:
-            await process.log("Error", data={"error": str(e), "agent_log_id": AGENT_LOG_ID})
-            await context.reply(f"I encountered an error while searching for literature: {str(e)}")
+            await process.log(
+                "Error", data={"error": str(e), "agent_log_id": AGENT_LOG_ID}
+            )
+            await context.reply(
+                f"I encountered an error while searching for literature: {str(e)}"
+            )
 
 
-def _generate_search_response_summary(count: int, limit: int, is_truncated: bool, portal_url: str) -> str:
+def _generate_search_response_summary(
+    count: int, limit: int, is_truncated: bool, portal_url: str
+) -> str:
     if count > 0:
         summary = f"I found {count} publication(s) matching your criteria. "
         if is_truncated:
             summary += f"Showing top {limit} results. "
     else:
         summary = "I could not find any publications matching your criteria. "
-    summary += f"You can explore the full results in the GBIF literature portal at {portal_url}."
+    summary += (
+        f"You can explore the full results in the GBIF literature portal at {portal_url}."
+    )
     return summary
