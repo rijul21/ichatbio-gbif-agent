@@ -27,6 +27,7 @@ class GBIFAgent(IChatBioAgent):
                 registry.search.entrypoint,
                 literature.search.by_id_entrypoint,
                 literature.search.search_entrypoint,
+                literature.count.entrypoint,
             ],
         )
 
@@ -61,6 +62,8 @@ class GBIFAgent(IChatBioAgent):
                     await literature.search.run(context, request)
                 case literature.search.search_entrypoint.id:
                     await literature.search.run_search(context, request)
+                case literature.count.entrypoint.id:
+                    await literature.count.run(context, request)
                 case _:
                     error_msg = f"Unknown entrypoint: {entrypoint}"
                     logger.error(f"AGENT_ERROR | {error_msg}")
