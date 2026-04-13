@@ -141,6 +141,11 @@ class GBIFLiteratureSearchParams(ProductionBaseModel):
         description="GBIF backbone taxon key(s) that are the focus of the paper.",
         examples=[[2435098]],
     )
+    gbifHigherTaxonKey: Optional[List[int]] = Field(
+        None,
+        description="GBIF backbone higher taxon key(s) (family, order, class, phylum, kingdom) for filtering literature.",
+        examples=[[212]],
+    )
     gbifDatasetKey: Optional[List[UUID]] = Field(
         None,
         description="UUID of a GBIF dataset referenced in the publication.",
