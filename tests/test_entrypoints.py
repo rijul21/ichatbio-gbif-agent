@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from ichatbio.agent_response import ArtifactResponse
+from ichatbio.agent_response import ArtifactResponse, DirectResponse
 
 
 @pytest.mark.asyncio
@@ -138,13 +138,17 @@ async def test_find_datasets(agent, context, messages):
         "facets": []
     }
 
-    with patch('src.gbif.fetch.execute_request') as mock_execute:
+    with patch('src.entrypoints.registry.search.execute_request') as mock_execute:
         mock_execute.return_value = mock_response
         await agent.run(context, "Find occurrence datasets", "find_datasets", None)
 
     artifacts = [m for m in messages if isinstance(m, ArtifactResponse)]
     assert artifacts, "Expected at least one ArtifactResponse"
     assert artifacts[0].metadata["data_source"] == "GBIF Registry"
+
+    # Verify reply includes the count
+    reply = next((m.text for m in messages if isinstance(m, DirectResponse)), "")
+    assert "25" in reply, "Expected reply to include the dataset count"
 
 
 @pytest.mark.asyncio

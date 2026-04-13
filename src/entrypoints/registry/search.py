@@ -118,7 +118,7 @@ async def run(context: ResponseContext, request: str):
 def _generate_response_summary(total: int, portal_url: str) -> str:
     if total > 0:
         summary = (
-            f"I have successfully searched for datasets and found matching records. "
+            f"I have successfully searched for datasets and found {total} matching records. "
         )
     else:
         summary = f"I have not found any datasets matching your criteria. "
