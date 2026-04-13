@@ -1,0 +1,40 @@
+test_cases:
+  - user_message: "Find datasets about marine biodiversity"
+    expected_param: "q: marine biodiversity"
+    expected_description: "Datasets related to marine biodiversity"
+    expected_reply: "Found datasets matching marine biodiversity with portal link."
+
+  - user_message: "Find occurrence datasets from Germany"
+    expected_param: "publishingCountry: DE, type: OCCURRENCE"
+    expected_description: "Occurrence datasets published by Germany"
+    expected_reply: "Found occurrence datasets from Germany with portal link."
+
+  - user_message: "Search for checklist datasets about birds"
+    expected_param: "type: CHECKLIST"
+    expected_description: "Checklist datasets related to birds"
+    expected_reply: "Found checklist datasets about birds with portal link."
+
+  - user_message: "Find datasets with CC0 license from the United States"
+    expected_param: "publishingCountry: US, license: CC0_1_0"
+    expected_description: "CC0 licensed datasets from United States"
+    expected_reply: "Found CC0 licensed datasets from US with portal link."
+
+  - user_message: "List datasets about coral reefs"
+    expected_param: "q: coral reefs"
+    expected_description: "Datasets related to coral reefs"
+    expected_reply: "Found datasets about coral reefs with portal link."
+
+  - user_message: "Find occurrence datasets from the United Kingdom"
+    expected_param: "publishingCountry: GB, type: OCCURRENCE"
+    expected_description: "Occurrence datasets from United Kingdom"
+    expected_reply: "Found occurrence datasets from UK with portal link."
+
+  - user_message: "Search for datasets with keyword conservation"
+    expected_param: "keyword: conservation"
+    expected_description: "Datasets with conservation keyword"
+    expected_reply: "Found datasets with conservation keyword and portal link."
+
+  - user_message: "Find datasets about butterflies from France"
+    expected_param: "publishingCountry: FR"
+    expected_description: "Datasets about butterflies from France"
+    expected_reply: "Found butterfly datasets from France with portal link."

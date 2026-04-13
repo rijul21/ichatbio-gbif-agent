@@ -1,6 +1,5 @@
 import dotenv
 dotenv.load_dotenv()
-
 import pytest
 from ichatbio.test_utils import InMemoryResponseChannel
 from ichatbio.agent_response import ResponseContext, DirectResponse, ProcessLogResponse, ArtifactResponse
@@ -10,8 +9,8 @@ PARAM_LOG_TEXTS = {
     "Search API parameters results -",
     "Final Search API parameters",
     "Generated search parameters",
+    "Final Search Parameters",
 }
-
 
 @pytest.fixture
 def run_agent():

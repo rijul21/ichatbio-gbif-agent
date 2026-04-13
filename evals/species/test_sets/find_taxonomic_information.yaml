@@ -1,0 +1,25 @@
+test_cases:
+  - user_message: "Get taxonomic information for taxon key 5219404"
+    expected_param: "key: 5219404"
+    expected_description: "Taxonomic information for taxon 5219404"
+    expected_reply: "Retrieved taxonomic information including hierarchy and classification."
+
+  - user_message: "Find the taxonomic hierarchy for Panthera leo"
+    expected_param: "name: Panthera leo"
+    expected_description: "Taxonomic hierarchy for Panthera leo"
+    expected_reply: "Retrieved taxonomic information for Panthera leo."
+
+  - user_message: "Show me the synonyms of Canis lupus"
+    expected_param: "name: Canis lupus"
+    expected_description: "Taxonomic information for Canis lupus"
+    expected_reply: "Retrieved taxonomic information including synonyms."
+
+  - user_message: "What are the child taxa of family Canidae?"
+    expected_param: "name: Canidae"
+    expected_description: "Taxonomic information for Canidae"
+    expected_reply: "Retrieved taxonomic information including child taxa."
+
+  - user_message: "Show me the full classification of Homo sapiens"
+    expected_param: "name: Homo sapiens"
+    expected_description: "Full taxonomic classification of Homo sapiens"
+    expected_reply: "Retrieved full classification for Homo sapiens."

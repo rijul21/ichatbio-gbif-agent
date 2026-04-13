@@ -1,0 +1,29 @@
+test_cases:
+  - user_message: "Search for species Panthera leo"
+    expected_param: "q: Panthera leo"
+    expected_description: "Species search results for Panthera leo"
+    expected_reply: "Found species records for Panthera leo with portal link."
+
+  - user_message: "Find species Quercus robur"
+    expected_param: "q: Quercus robur"
+    expected_description: "Species search results for Quercus robur"
+    expected_reply: "Found species records for Quercus robur with portal link."
+
+  - user_message: "Look up the species called African elephant"
+    expected_param: "q: Loxodonta africana"
+    expected_description: "Species search results for African elephant"
+    expected_reply: "Found species records for African elephant with portal link."
+
+  - user_message: "Find all genera in the family Felidae"
+    expected_param: "q: Felidae, rank: GENUS"
+    expected_description: "Genus-level species in family Felidae"
+    expected_reply: "Found genus records in Felidae with portal link."
+
+  - user_message: "Search for species in the genus Canis"
+    expected_param: "q: Canis, rank: SPECIES"
+    expected_description: "Species in genus Canis"
+    expected_reply: "Found species records in genus Canis with portal link."
+
+  - user_message: "Find species of birds in Florida"
+    expect_rejection: true
+    expected_description: "N/A"

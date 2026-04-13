@@ -1,0 +1,24 @@
+test_cases:
+  - user_message: "How many species are in the family Felidae?"
+    expected_param: "q: Felidae"
+    expected_description: "Count of species in family Felidae"
+    expected_reply: "Found species count for Felidae with portal link."
+
+  - user_message: "Count the number of genera in Plantae"
+    expected_param: "q: Plantae"
+    expected_description: "Count of genera in kingdom Plantae"
+    expected_reply: "Found genus count in Plantae with portal link."
+
+  - user_message: "Breakdown of taxonomic ranks in Mammalia"
+    expected_param: "q: Mammalia, facet: rank"
+    expected_description: "Taxonomic rank breakdown for Mammalia"
+    expected_reply: "Found taxonomic breakdown for Mammalia with portal link."
+
+  - user_message: "How many accepted vs synonym species are in Orchidaceae?"
+    expected_param: "q: Orchidaceae, facet: status"
+    expected_description: "Taxonomic status breakdown for Orchidaceae"
+    expected_reply: "Found status breakdown for Orchidaceae with portal link."
+
+  - user_message: "How many plant species are in Brazil?"
+    expect_rejection: true
+    expected_description: "N/A"
