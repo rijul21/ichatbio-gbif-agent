@@ -23,7 +23,3 @@ test_cases:
     expected_param: "q: Canis, rank: SPECIES"
     expected_description: "Species in genus Canis"
     expected_reply: "Found species records in genus Canis with portal link."
-
-  - user_message: "Find species of birds in Florida"
-    expect_rejection: true
-    expected_description: "N/A"

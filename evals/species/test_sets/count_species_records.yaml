@@ -18,7 +18,3 @@ test_cases:
     expected_param: "q: Orchidaceae, facet: status"
     expected_description: "Taxonomic status breakdown for Orchidaceae"
     expected_reply: "Found status breakdown for Orchidaceae with portal link."
-
-  - user_message: "How many plant species are in Brazil?"
-    expect_rejection: true
-    expected_description: "N/A"

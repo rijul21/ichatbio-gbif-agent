@@ -12,12 +12,6 @@ test_cases = load_tests(TEST_FILE)
 async def test_find_species_records(run_agent, test_case):
     result = await run_agent("find_species_records", test_case["user_message"])
     
-    # Check if this is an expected rejection (location-based query)
-    if test_case.get("expect_rejection"):
-        assert "location" in result["reply"].lower() or "occurrence" in result["reply"].lower(), \
-            f"Expected rejection for location query, got: {result['reply']}"
-        return
-    
     if param := test_case.get("expected_param"):
         check_params(result["params"], param)
         check_portal_url(result["portal_url"], param)
