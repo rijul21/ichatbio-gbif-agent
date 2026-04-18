@@ -56,7 +56,13 @@ class IdentifiedOrganism(BaseModel):
     )
     taxonomic_rank: str = Field(
         description="The taxonomic rank of the scientific name (e.g., 'species', 'genus', 'family', 'order', 'class')",
+
     )
+    parent_scientific_name: Optional[str] = Field(
+        default=None,
+        description="The scientific name of the nearest parent taxon at a major rank (family, order, class, etc.) when the organism is at an intermediate rank like subfamily, tribe, or subtribe. For example, if the organism is subfamily Pooideae, this should be 'Poaceae' (the parent family).",
+    )
+
 
 
 class UserRequestExpansion(BaseModel):

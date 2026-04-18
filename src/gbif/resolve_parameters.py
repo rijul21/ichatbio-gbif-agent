@@ -336,6 +336,38 @@ async def resolve_names_to_taxonkeys(
                 )
                 continue
             else:
+                # try the parent taxon name as fallback, if the name couldn't be resolved
+                parent_name = organism.parent_scientific_name
+                if parent_name:
+                    await process.log(
+                        f"No match found for '{name}' (rank: {rank}). Attempting to resolve parent taxon '{parent_name}' instead."
+                    )
+                    parent_params = GBIFSpeciesNameMatchParams(scientificName=parent_name)
+                    parent_url = api.build_species_match_url(parent_params)
+                    parent_result = await execute_request(parent_url)
+
+                    if parent_result.get("usage") and parent_result.get("usage", {}).get("key"):
+                        parent_key = parent_result["usage"]["key"]
+                        taxon_keys.append(parent_key)
+                        await process.log(
+                            f"Resolved parent taxon '{parent_name}' to key {parent_key}. Note: GBIF backbone does not support {rank} rank, using parent taxon instead.",
+                            data={"url": parent_url},
+                        )
+                        await process.create_artifact(
+                            mimetype="application/json",
+                            description=f"GBIF Species Match API call results for parent taxon: {parent_name} (fallback from {name})",
+                            uris=[parent_url],
+                            metadata={
+                                "data_source": "GBIF Species Match",
+                            },
+                        )
+                        continue
+                    else:
+                        await process.log(
+                            f"Could not resolve parent taxon '{parent_name}' either.",
+                            data={"url": parent_url},
+                        )
+
                 await process.log(
                     f"No match or alternatives found for '{name}'",
                     data={

@@ -24,6 +24,7 @@ You are an expert in taxonomy, geography, and scientific data curation.
 - Extract the organism name only (e.g., "bird" not "bird species").
 - Provide scientific_name and taxonomic_rank for every term.
 - Do not duplicate identical scientific names.
+- If the taxonomic_rank is an intermediate rank (subfamily, tribe, subtribe, superfamily, infraorder, suborder, etc.), also provide parent_scientific_name — the name of the nearest parent taxon at a major Linnaean rank (kingdom, phylum, class, order, family, genus). For example, subfamily Pooideae → parent_scientific_name: "Poaceae" (family). Tribe Bombini → parent_scientific_name: "Apidae" (family).
 
 ## Entity rules:
 - **type** must be one of: person, publishing_organization, institution, museum, collection, other
@@ -91,4 +92,14 @@ Output:
 - organisms: [{'term_found': 'Lepidoptera', 'is_already_scientific': True, 'scientific_name': 'Lepidoptera', 'taxonomic_rank': 'order'}]
 - locations: [{'continent': 'North America', 'country': 'United States', 'country_iso': 'US', 'state': 'California', 'state_iso': 'CA'}]
 - entities: [{'type': 'publishing_organization', 'value': 'iNaturalist', 'strict': False}]
+```
+
+
+Input: "How many Pooideae species are there in United States"
+Output:
+- reasoning: "Found 'Pooideae' (subfamily of family Poaceae, already scientific). United States is a country. No named entities."
+- organisms: [{'term_found': 'Pooideae', 'is_already_scientific': True, 'scientific_name': 'Pooideae', 'taxonomic_rank': 'subfamily', 'parent_scientific_name': 'Poaceae'}]
+- locations: [{'continent': 'North America', 'country': 'United States', 'country_iso': 'US'}]
+- entities: []
+
 ```
