@@ -4,6 +4,8 @@ from ichatbio.agent_response import ResponseContext, IChatBioAgentProcess
 from ichatbio.types import AgentEntrypoint
 from pydantic import BaseModel, Field
 
+from src.models.entrypoints import GBIFSpeciesNameMatchParams
+
 from src.enums.species import (
     TaxonomicStatusEnum,
     TaxonomicRankEnum,
@@ -265,12 +267,13 @@ async def __search_species_by_name(
     process: IChatBioAgentProcess,
 ) -> int:
     await process.log(f"Searching for species by name: {name}")
-    # Create the search params for species using the GBIF Backbone Dataset Key at once
+    # Search WITHOUT rank filter first - the rank from the user query may represent
+    # the desired child rank (e.g., "find genera in Pooideae" -> rank=GENUS),
+    # not the rank of the taxon itself.
     params = GBIFSpeciesSearchParams(
         q=name,
         status=TaxonomicStatusEnum.ACCEPTED,
         datasetKey=GBIF_BACKBONE_DATASET_KEY,
-        rank=rank,
         qField=qField,
     )
 
@@ -305,7 +308,21 @@ async def __search_species_by_name(
             )
 
         if not species_matches:
-            raise ValueError(f"No species matches found for name: {name}")
+            await process.log(f"No species search results for '{name}', trying species match API...")
+
+            match_params = GBIFSpeciesNameMatchParams(scientificName=name)
+            match_url = api.build_species_match_url(match_params)
+            match_result = await execute_request(match_url)
+
+            if match_result.get("usage") and match_result.get("usage", {}).get("key"):
+                key = match_result["usage"]["key"]
+                await process.log(f"Resolved '{name}' via species match API to key {key}")
+                return key
+
+            raise ValueError(
+                f"No species matches found for name: {name}. "
+                f"This taxon may not exist in the GBIF Backbone Taxonomy."
+            )
 
         await process.create_artifact(
             mimetype="application/json",
