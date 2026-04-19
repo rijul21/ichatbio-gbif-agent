@@ -305,14 +305,16 @@ async def _get_parameters(
     base_params = response.params.model_copy(update=params_updates)
     if getattr(base_params, "scientificName", None):
         await process.log(f"Resolving {len(organisms)} organisms to taxon keys...")
-        taxon_keys = await resolve_names_to_taxonkeys(api, organisms, process)
+        
+        taxon_keys, parent_fallback_names = await resolve_names_to_taxonkeys(api, organisms, process)
         if taxon_keys:
-            params_updates.update(
-                {
-                    "taxonKey": [int(key) for key in taxon_keys],
-                    "scientificName": None,
-                }
-            )
+            updates = {
+                "taxonKey": [int(key) for key in taxon_keys],
+                "scientificName": None,
+            }
+            if parent_fallback_names:
+                updates["q"] = " ".join(parent_fallback_names)
+            params_updates.update(updates)
         else:
             await process.log(
                 "Failed to resolve any scientific names to taxon keys, using original parameters"

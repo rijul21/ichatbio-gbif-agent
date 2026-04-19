@@ -228,7 +228,7 @@ async def run_search(context: ResponseContext, request: str):
             await process.log(
                 f"Resolving {len(expansion_response.organisms)} organism(s) to GBIF taxon keys..."
             )
-            taxon_keys = await resolve_names_to_taxonkeys(
+            taxon_keys, parent_fallback_names = await resolve_names_to_taxonkeys(
                 api, expansion_response.organisms, process
             )
             if taxon_keys:
@@ -262,6 +262,15 @@ async def run_search(context: ResponseContext, request: str):
                         f"Resolved to gbifTaxonKey: {merged_keys}",
                         data={"gbifTaxonKey": merged_keys},
                     )
+
+                    if parent_fallback_names:
+                        existing_q = search_params.q or ""
+                        fallback_q = " ".join(parent_fallback_names)
+                        new_q = f"{existing_q} {fallback_q}".strip() if existing_q else fallback_q
+                        search_params = search_params.model_copy(update={"q": new_q})
+                        await process.log(
+                            f"Added parent fallback names to q parameter: {fallback_q}"
+                        )
             else:
                 await process.log(
                     "Could not resolve organisms to taxon keys, will use free text search if q parameter is set"

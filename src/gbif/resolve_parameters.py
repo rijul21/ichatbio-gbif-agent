@@ -215,6 +215,7 @@ async def resolve_names_to_taxonkeys(
         return []
 
     taxon_keys = []
+    parent_fallback_names = []
 
     for organism in organisms:
         data = organism.model_dump(exclude_none=True, mode="json")
@@ -349,6 +350,7 @@ async def resolve_names_to_taxonkeys(
                     if parent_result.get("usage") and parent_result.get("usage", {}).get("key"):
                         parent_key = parent_result["usage"]["key"]
                         taxon_keys.append(parent_key)
+                        parent_fallback_names.append(name)
                         await process.log(
                             f"Resolved parent taxon '{parent_name}' to key {parent_key}. Note: GBIF backbone does not support {rank} rank, using parent taxon instead.",
                             data={"url": parent_url},
@@ -388,7 +390,7 @@ async def resolve_names_to_taxonkeys(
             continue
 
     await process.log(f"Resolved {len(taxon_keys)} out of {len(organisms)} names.")
-    return taxon_keys
+    return taxon_keys, parent_fallback_names
 
 
 async def resolve_keys_to_names(
