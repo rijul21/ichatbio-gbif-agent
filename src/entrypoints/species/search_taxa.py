@@ -323,6 +323,14 @@ async def __search_species_by_name(
                 f"No species matches found for name: {name}. "
                 f"This taxon may not exist in the GBIF Backbone Taxonomy."
             )
+        # Filter to only exact  name matches to avoid false text matches
+        exact_matches = [m for m in species_matches if m.canonicalName and m.canonicalName.lower() == name.lower()]
+        if not exact_matches:
+            raise ValueError(
+                f"No exact match found for '{name}' in the GBIF Backbone Taxonomy. "
+                f"This taxon may not exist in the backbone."
+            )
+        species_matches = exact_matches
 
         await process.create_artifact(
             mimetype="application/json",
