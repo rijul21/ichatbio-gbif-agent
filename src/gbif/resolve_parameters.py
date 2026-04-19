@@ -412,7 +412,7 @@ async def resolve_keys_to_names(
     }
     await process.log(
         "Resolving GBIF keys to scientific names",
-        data={"keys": unique_keys, "type": type},
+        data={"total_keys": len(unique_keys), "type": type, "sample_keys": unique_keys[:10]},
     )
     results = await execute_multiple_requests(urls)
     keys_to_name: Dict[int, str] = {}
