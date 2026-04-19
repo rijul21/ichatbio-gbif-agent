@@ -314,14 +314,22 @@ async def resolve_names_to_taxonkeys(
 
                     await process.log(alternatives_text)
 
-                    # Use first alternative
-                    first_alt = alternatives[0]
-                    first_usage = first_alt.get("usage", {})
-                    first_scientific_name = first_usage.get(
-                        "name", first_usage.get("scientificName", "Unknown")
-                    )
-                    await process.log(f'Assuming option 1: "{first_scientific_name}"')
-                    result = first_alt
+# Check if any alternative's canonical name matches the search name
+                    matching_alt = None
+                    for alt in alternatives:
+                        alt_usage = alt.get("usage", {})
+                        alt_canonical = alt_usage.get("canonicalName", "")
+                        if alt_canonical and alt_canonical.lower() == name.lower():
+                            matching_alt = alt
+                            break
+
+                    if matching_alt:
+                        match_usage = matching_alt.get("usage", {})
+                        match_name = match_usage.get("name", match_usage.get("scientificName", "Unknown"))
+                        await process.log(f'Found matching alternative: "{match_name}"')
+                        result = matching_alt
+                    else:
+                        await process.log(f'No alternatives match the name "{name}", skipping alternatives')
 
             # generate artifact for the response
             if result.get("usage") and result.get("usage", {}).get("key"):
