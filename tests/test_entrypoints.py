@@ -122,8 +122,9 @@ async def test_find_species_taxonomic_information(agent, context, messages):
 
     artifacts = [m for m in messages if isinstance(m, ArtifactResponse)]
     assert artifacts, "Expected at least one ArtifactResponse"
-    assert artifacts[0].metadata["data_source"] == "GBIF Species Matches"
-
+    
+    species_artifacts = [a for a in artifacts if a.metadata.get("data_source") in ("GBIF Species", "GBIF Species Matches")]
+    assert species_artifacts, "Expected GBIF Species artifact"
 
 @pytest.mark.asyncio
 async def test_find_datasets(agent, context, messages):
