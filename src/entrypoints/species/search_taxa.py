@@ -267,9 +267,20 @@ async def __search_species_by_name(
     process: IChatBioAgentProcess,
 ) -> int:
     await process.log(f"Searching for species by name: {name}")
-    # Search WITHOUT rank filter first - the rank from the user query may represent
-    # the desired child rank (e.g., "find genera in Pooideae" -> rank=GENUS),
-    # not the rank of the taxon itself.
+
+        # Try species match API first for an exact match
+    match_params = GBIFSpeciesNameMatchParams(scientificName=name)
+    match_url = api.build_species_match_url(match_params)
+    match_result = await execute_request(match_url)
+
+    if match_result.get("usage") and match_result.get("usage", {}).get("key"):
+        key = match_result["usage"]["key"]
+        await process.log(f"Resolved '{name}' directly via species match API to key {key}")
+        return key
+
+    await process.log(f"No exact match for '{name}', falling back to text search...")
+
+    # Fall back to text search WITHOUT rank filter
     params = GBIFSpeciesSearchParams(
         q=name,
         status=TaxonomicStatusEnum.ACCEPTED,
@@ -308,17 +319,6 @@ async def __search_species_by_name(
             )
 
         if not species_matches:
-            await process.log(f"No species search results for '{name}', trying species match API...")
-
-            match_params = GBIFSpeciesNameMatchParams(scientificName=name)
-            match_url = api.build_species_match_url(match_params)
-            match_result = await execute_request(match_url)
-
-            if match_result.get("usage") and match_result.get("usage", {}).get("key"):
-                key = match_result["usage"]["key"]
-                await process.log(f"Resolved '{name}' via species match API to key {key}")
-                return key
-
             raise ValueError(
                 f"No species matches found for name: {name}. "
                 f"This taxon may not exist in the GBIF Backbone Taxonomy."
