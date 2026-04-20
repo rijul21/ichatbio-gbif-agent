@@ -1,23 +1,26 @@
-from typing import List, Optional
-
 from ichatbio.agent_response import ResponseContext, IChatBioAgentProcess
 from ichatbio.types import AgentEntrypoint
-from pydantic import BaseModel, Field
 
-from src.models.entrypoints import GBIFSpeciesNameMatchParams
-
+from src.gbif.api import GbifApi
+from src.gbif.fetch import execute_request, execute_multiple_requests
+from src.models.entrypoints import GBIFSpeciesSearchParams, GBIFSpeciesTaxonomicParams
 from src.enums.species import (
     TaxonomicStatusEnum,
     TaxonomicRankEnum,
     QueryFieldEnum,
 )
-from src.gbif.api import GbifApi
-from src.gbif.fetch import execute_request, execute_multiple_requests
-from src.gbif.parser import parse
-from src.instructor_client import get_client
-from src.log import with_logging, logger
-from src.models.entrypoints import GBIFSpeciesSearchParams, GBIFSpeciesTaxonomicParams
 from src.models.responses.species import NameUsage, PagingResponseNameUsage
+from src.log import with_logging, logger
+from src.gbif.parser import parse
+
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+from dotenv import load_dotenv
+from src.instructor_client import get_client
+
+load_dotenv()
+
 
 description = f"""
 **Use Case:** Use this entrypoint to retrieve taxonomic information (like the full parent hierarchy, child taxa, or synonyms) that matches with a scientificName or taxonKey. It can also be used to find specific identifiers such as taxonKey, kingdomKey, etc in GBIF Backbone Taxonomy.
@@ -32,7 +35,13 @@ If only name is provided, it will try to first search for the species usageKey i
 
 entrypoint = AgentEntrypoint(
     id="find_taxonomic_information",
-    description=description
+    name="Species Taxonomic Information",
+    description=description,
+    examples=[
+        "Get taxonomic information for species with id 5231190",
+        "Show taxonomic hierarchy and synonyms for species 2476674",
+        "Retrieve taxonomic data for species id 2877951 including children taxa",
+    ],
 )
 
 GBIF_BACKBONE_DATASET_KEY = "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
@@ -267,24 +276,12 @@ async def __search_species_by_name(
     process: IChatBioAgentProcess,
 ) -> int:
     await process.log(f"Searching for species by name: {name}")
-
-        # Try species match API first for an exact match
-    match_params = GBIFSpeciesNameMatchParams(scientificName=name)
-    match_url = api.build_species_match_url(match_params)
-    match_result = await execute_request(match_url)
-
-    if match_result.get("usage") and match_result.get("usage", {}).get("key"):
-        key = match_result["usage"]["key"]
-        await process.log(f"Resolved '{name}' directly via species match API to key {key}")
-        return key
-
-    await process.log(f"No exact match for '{name}', falling back to text search...")
-
-    # Fall back to text search WITHOUT rank filter
+    # Create the search params for species using the GBIF Backbone Dataset Key at once
     params = GBIFSpeciesSearchParams(
         q=name,
         status=TaxonomicStatusEnum.ACCEPTED,
         datasetKey=GBIF_BACKBONE_DATASET_KEY,
+        rank=rank,
         qField=qField,
     )
 
@@ -319,18 +316,7 @@ async def __search_species_by_name(
             )
 
         if not species_matches:
-            raise ValueError(
-                f"No species matches found for name: {name}. "
-                f"This taxon may not exist in the GBIF Backbone Taxonomy."
-            )
-        # Filter to only exact  name matches to avoid false text matches
-        exact_matches = [m for m in species_matches if m.canonicalName and m.canonicalName.lower() == name.lower()]
-        if not exact_matches:
-            raise ValueError(
-                f"No exact match found for '{name}' in the GBIF Backbone Taxonomy. "
-                f"This taxon may not exist in the backbone."
-            )
-        species_matches = exact_matches
+            raise ValueError(f"No species matches found for name: {name}")
 
         await process.create_artifact(
             mimetype="application/json",
