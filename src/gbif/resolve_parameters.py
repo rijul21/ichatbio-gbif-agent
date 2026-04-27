@@ -345,47 +345,97 @@ async def resolve_names_to_taxonkeys(
                 )
                 continue
             else:
-                # try the parent taxon name as fallback, if the name couldn't be resolved
-                parent_name = organism.parent_scientific_name
-                if parent_name:
-                    await process.log(
-                        f"No match found for '{name}' (rank: {rank}). Attempting to resolve parent taxon '{parent_name}' instead."
-                    )
-                    parent_params = GBIFSpeciesNameMatchParams(scientificName=parent_name)
-                    parent_url = api.build_species_match_url(parent_params)
-                    parent_result = await execute_request(parent_url)
+                            # Step 1: Try NCBI Taxonomy checklist for intermediate ranks
+                            ncbi_dataset_key = "fab88965-e69d-4491-a04d-e3198b626e52"
+                            checklist_found = False
 
-                    if parent_result.get("usage") and parent_result.get("usage", {}).get("key"):
-                        parent_key = parent_result["usage"]["key"]
-                        taxon_keys.append(parent_key)
-                        parent_fallback_names.append(name)
-                        await process.log(
-                            f"Resolved parent taxon '{parent_name}' to key {parent_key}. Note: GBIF backbone does not support {rank} rank, using parent taxon instead.",
-                            data={"url": parent_url},
-                        )
-                        await process.create_artifact(
-                            mimetype="application/json",
-                            description=f"GBIF Species Match API call results for parent taxon: {parent_name} (fallback from {name})",
-                            uris=[parent_url],
-                            metadata={
-                                "data_source": "GBIF Species Match",
-                            },
-                        )
-                        continue
-                    else:
-                        await process.log(
-                            f"Could not resolve parent taxon '{parent_name}' either.",
-                            data={"url": parent_url},
-                        )
+                            if rank and rank.upper() not in ("KINGDOM", "PHYLUM", "CLASS", "ORDER", "FAMILY", "GENUS", "SPECIES"):
+                                await process.log(
+                                    f"'{name}' ({rank}) not in GBIF backbone. Searching NCBI Taxonomy checklist..."
+                                )
+                                checklist_search_url = (
+                                    f"{api.base_url}/species/search?q={name}&rank={rank.upper()}"
+                                    f"&datasetKey={ncbi_dataset_key}&limit=1"
+                                )
+                                checklist_result = await execute_request(checklist_search_url)
+                                checklist_results = checklist_result.get("results", [])
 
-                await process.log(
-                    f"No match or alternatives found for '{name}'",
-                    data={
-                        "data_source": f"GBIF Species Match results for: {name}",
-                        "api_url": url,
-                    },
-                )
-                continue
+                                if checklist_results:
+                                    checklist_key = checklist_results[0]["key"]
+                                    # Get all genera under this taxon in the checklist
+                                    genera_url = (
+                                        f"{api.base_url}/species/search?higherTaxonKey={checklist_key}"
+                                        f"&rank=GENUS&datasetKey={ncbi_dataset_key}&limit=300"
+                                    )
+                                    genera_result = await execute_request(genera_url)
+                                    genera = genera_result.get("results", [])
+
+                                    # Collect backbone keys (nubKey) from genera
+                                    backbone_keys = [
+                                        str(g["nubKey"]) for g in genera if g.get("nubKey")
+                                    ]
+
+                                    if backbone_keys:
+                                        await process.log(
+                                            f"Found {len(genera)} genera under '{name}' in NCBI checklist. "
+                                            f"Resolved {len(backbone_keys)} to backbone keys.",
+                                            data={"checklist_genera": len(genera), "backbone_keys": len(backbone_keys)},
+                                        )
+                                        taxon_keys.extend(backbone_keys)
+                                        await process.create_artifact(
+                                            mimetype="application/json",
+                                            description=f"NCBI checklist genera for {name} ({len(backbone_keys)} backbone keys)",
+                                            uris=[genera_url],
+                                            metadata={
+                                                "data_source": "NCBI Taxonomy Checklist",
+                                            },
+                                        )
+                                        checklist_found = True
+
+                            if not checklist_found:
+                                # Step 2: Fall back to parent taxon with q filter (approximate)
+                                parent_name = organism.parent_scientific_name
+                                if parent_name:
+                                    await process.log(
+                                        f"No match found for '{name}' (rank: {rank}). Falling back to parent taxon '{parent_name}' with text filter."
+                                    )
+                                    parent_params = GBIFSpeciesNameMatchParams(scientificName=parent_name)
+                                    parent_url = api.build_species_match_url(parent_params)
+                                    parent_result = await execute_request(parent_url)
+                                    if parent_result.get("usage") and parent_result.get("usage", {}).get("key"):
+                                        parent_key = parent_result["usage"]["key"]
+                                        taxon_keys.append(parent_key)
+                                        parent_fallback_names.append(name)
+                                        await process.log(
+                                            f"Resolved parent taxon '{parent_name}' to key {parent_key}. Note: results will be approximate (text filter).",
+                                            data={"url": parent_url},
+                                        )
+                                        await process.create_artifact(
+                                            mimetype="application/json",
+                                            description=f"GBIF Species Match API call results for parent taxon: {parent_name} (fallback from {name})",
+                                            uris=[parent_url],
+                                            metadata={
+                                                "data_source": "GBIF Species Match",
+                                            },
+                                        )
+                                        continue
+                                    else:
+                                        await process.log(
+                                            f"Could not resolve parent taxon '{parent_name}' either.",
+                                            data={"url": parent_url},
+                                        )
+
+                            if checklist_found:
+                                continue
+
+                            await process.log(
+                                f"No match or alternatives found for '{name}'",
+                                data={
+                                    "data_source": f"GBIF Species Match results for: {name}",
+                                    "api_url": url,
+                                },
+                            )
+                            continue
 
         except Exception as e:
             await process.log(
