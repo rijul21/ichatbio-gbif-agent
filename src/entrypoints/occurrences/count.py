@@ -69,6 +69,7 @@ class ParameterResolutionResult:
     search_params: Optional[GBIFOccurrenceFacetsParams]
     clarification_needed: bool
     clarification_message: str = None
+    parent_fallback_names: list = None
 
 
 @with_logging("count_occurrence_records")
@@ -228,7 +229,7 @@ async def run(context: ResponseContext, request: str):
                 },
             )
 
-            summary = _generate_response_summary(page_info, portal_url)
+            summary = _generate_response_summary(page_info, portal_url, param_result.parent_fallback_names)
 
             await context.reply(summary)
 
@@ -246,11 +247,18 @@ async def run(context: ResponseContext, request: str):
             )
 
 
-def _generate_response_summary(page_info: dict, portal_url: str) -> str:
+def _generate_response_summary(page_info: dict, portal_url: str, parent_fallback_names: list = None) -> str:
     if page_info.get("count") > 0:
         summary = f"I have found {page_info.get('count')} occurrence records matching your criteria. "
     else:
         summary = "I have not found any occurrence records matching your criteria. "
+    if parent_fallback_names:
+        names = ", ".join(parent_fallback_names)
+        summary += (
+            f"Note: '{names}' is not directly indexed in GBIF's taxonomy. "
+            f"These results are approximate — based on text matching within the parent family. "
+            f"The actual count is likely higher as records without explicit mention of '{names}' are not included. "
+        )
     summary += f"The results can also be viewed in the GBIF portal at {portal_url}."
     return summary
 
@@ -296,6 +304,7 @@ async def _get_parameters(
                 search_params=None,
                 clarification_needed=True,
                 clarification_message=clarification_message,
+                parent_fallback_names=None,
             )
         else:
             await process.log(f"Request parsed successfully...")
@@ -327,6 +336,7 @@ async def _get_parameters(
         search_params=params,
         clarification_needed=clarification_needed,
         clarification_message=clarification_message,
+        parent_fallback_names=parent_fallback_names if 'parent_fallback_names' in locals() else None,
     )
 
 
