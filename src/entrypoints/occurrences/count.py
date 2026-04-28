@@ -256,7 +256,7 @@ def _generate_response_summary(page_info: dict, portal_url: str, parent_fallback
         names = ", ".join(parent_fallback_names)
         summary += (
             f"Note: '{names}' is not directly indexed in GBIF's taxonomy. "
-            f"These results are approximate — based on text matching within the parent family. "
+            f"These results are approximate; based on text matching within the parent family. "
             f"The actual count is likely higher as records without explicit mention of '{names}' are not included. "
         )
     summary += f"The results can also be viewed in the GBIF portal at {portal_url}."
